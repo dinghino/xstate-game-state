@@ -18,7 +18,7 @@ import { CanvasRoot } from "./components/threejs";
 import { playerService } from "./state";
 import { useControlsModal } from "./hooks/use-controls-modal";
 
-const Provider: React.FC = ({ children }) => (
+const Provider: React.FC<{children: React.ReactNode}> = ({ children }) => (
   <ColorSchemeProvider colorScheme="dark" toggleColorScheme={() => null}>
     <MantineProvider withGlobalStyles withNormalizeCSS theme={{ colorScheme: "dark" }}>
       <ModalsProvider>

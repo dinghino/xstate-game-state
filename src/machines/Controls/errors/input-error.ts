@@ -4,11 +4,11 @@ import { INPUT_RECEIVED } from "../controls.types";
 const up = (s: string) => s.toUpperCase();
 
 export class InputsMachineError<
-  Configuration extends InputsConfiguration<string>
+  Configuration extends InputsConfiguration<string, string>
 > extends Error {
   constructor(
     message: string,
-    stateMachineInputEvent: INPUT_RECEIVED<Configuration, string>
+    stateMachineInputEvent: INPUT_RECEIVED<Configuration, string, string>
   ) {
     super(message);
     const { axis, source, _type, activator } = stateMachineInputEvent;

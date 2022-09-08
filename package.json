@@ -1,7 +1,7 @@
 {
   "name": "xstate-inputs-manager-3js-mantine-xstate",
   "version": "1.0.0",
-  "description": "",
+  "description": "Test project to develop a configurable input/state system for entities in a game environment",
   "keywords": [],
   "main": "src/index.tsx",
   "dependencies": {
@@ -22,8 +22,8 @@
     "xstate": "4.33.4"
   },
   "devDependencies": {
-    "@types/react": "17.0.20",
-    "@types/react-dom": "17.0.9",
+    "@types/react": "18",
+    "@types/react-dom": "18",
     "typescript": "4.4.2"
   },
   "scripts": {
