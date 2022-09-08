@@ -34,7 +34,7 @@ const formatInputValue = (text: string, control: InputMapping): string => {
   return cleanKeyValue(value);
 };
 
-const getMaxInputsCount = (controls: FinalizedInputs<string>) => {
+const getMaxInputsCount = (controls: FinalizedInputs<string, string>) => {
   let value = 0;
   objValues(controls).forEach((control) => {
     control.forEach(({ inputs: { length } }) => {
@@ -115,7 +115,7 @@ const useStyles = createStyles((theme) => ({
   }
 }));
 
-export const ConfigTable: React.FC<{ config: InputsConfiguration<string> }> = ({
+export const ConfigTable: React.FC<{ config: InputsConfiguration<string, string> }> = ({
   config
 }) => {
   const { classes } = useStyles();
