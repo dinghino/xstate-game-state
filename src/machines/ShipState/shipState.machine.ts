@@ -62,7 +62,7 @@ export const createShipStateMachine = <Axis extends string, Actions extends stri
       },
       // states definition
       states: {
-        running: {
+        active: {
           on: {
             UPDATE: {
               actions: ["processInputs", "updateTransform"],
@@ -81,10 +81,10 @@ export const createShipStateMachine = <Axis extends string, Actions extends stri
         processInputs: assign((ctx, event) => {
           if (!isEventType(event, "UPDATE")) return {};
           const velocity = updateVelocities(ctx, event);
-          const actions = objKeys(ctx.actions).reduce(
-            (p, key) => ({ ...p, [key]: event.values[key] }),
-            {}
-          );
+          const actions = objKeys(ctx.actions)
+            .reduce((p, key) => ({ ...p, [key]: event.values[key] }), {});
+            
+        
 
           return { ...velocity, actions };
         }),
