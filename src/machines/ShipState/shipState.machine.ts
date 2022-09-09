@@ -44,7 +44,7 @@ export const createShipStateMachine = <Axis extends string, Actions extends stri
   return createMachine(
     {
       predictableActionArguments: true,
-      initial: "running",
+      initial: "active",
       id: `ship-${id}-state`,
       schema: {
         context: {} as ShipStateContext<Axis, Actions>,
@@ -71,7 +71,7 @@ export const createShipStateMachine = <Axis extends string, Actions extends stri
         },
         paused: {
           on: {
-            RESUME: "running",
+            RESUME: "active",
           },
         },
       },
