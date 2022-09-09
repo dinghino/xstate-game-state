@@ -23,8 +23,8 @@ export type UPDATE<Axis extends string, Actions extends string> = {
   values: { [key in Axis | Actions]: number };
 };
 export type TEST_EVENT = { type: "TEST_EVENT" };
-export type PAUSE = { type: "PAUSE" };
-export type RESUME = { type: "RESUME" };
+export type PAUSE = { type: "STOP" };
+export type RESUME = { type: "START" };
 export type DEBUG = { type: "DEBUG" };
 export type RESET = { type: "RESET" };
 

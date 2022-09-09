@@ -15,7 +15,6 @@ export type ControlsContext<
   // IT extends TInputType = TInputType
 > = {
   config: Configuration;
-  active: boolean;
   // {[string]: number } map of axis|actions configured and their values
   values: { [key in Axis | Actions]: number };
   // actual InputConfiguration for each axis
@@ -47,9 +46,9 @@ export type MOUSE_MOVED<
 };
 
 export type INPUT_RECEIVED<
-  Configuration extends InputsConfiguration<Axis, Actions>,
+  // Configuration extends InputsConfiguration<Axis, Actions>,
   Axis extends string,
-  Actions extends string
+  // Actions extends string
 > = {
   type: "INPUT_RECEIVED";
   axis: Axis;
@@ -60,11 +59,17 @@ export type INPUT_RECEIVED<
   _type: TInputType;
 };
 
-export type SET_CONTROLLER_STATUS = {
-  type: "SET_CONTROLLER_STATUS";
+export type TOGGLE_CONTROLLER = {
+  type: "TOGGLE_CONTROLLER";
   value: boolean;
   controller: TControllerType;
 };
+
+export type CONTROLLER_STATUS_CHANGED = {
+  type: "CONTROLLER_STATUS_CHANGED",
+  status: boolean;
+  controller: TControllerType;
+}
 
 export type ControlsEvent<
   Configuration extends InputsConfiguration<Axis, Actions>,
@@ -73,8 +78,10 @@ export type ControlsEvent<
 > =
   | START
   | STOP
-  | SET_CONTROLLER_STATUS
-  | INPUT_RECEIVED<Configuration, Axis, Actions>
+  | TOGGLE_CONTROLLER
+  | CONTROLLER_STATUS_CHANGED
+  // | INPUT_RECEIVED<Configuration, Axis, Actions>
+  | INPUT_RECEIVED<Axis>
   | MOUSE_MOVED<Configuration, Axis, Actions>;
 
 type EventType<E extends { type: string }> = E extends { type: infer T }

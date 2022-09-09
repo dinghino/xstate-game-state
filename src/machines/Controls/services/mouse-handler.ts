@@ -1,6 +1,6 @@
-import { Sender } from "xstate";
+import { Receiver, Sender } from "xstate";
 import { InputsConfiguration } from "../../configuration/InputsConfiguration";
-import { centerNormalize, isNearly } from "../../functions";
+import { centerNormalize, isEventType, isNearly } from "../../functions";
 import { ControlsContext, ControlsEvent } from "../controls.types";
 
 export const mouseHandlerService = <
@@ -9,7 +9,10 @@ export const mouseHandlerService = <
   Actions extends string
 >(
   ctx: ControlsContext<Config, Axis, Actions>
-) => (callback: Sender<ControlsEvent<Config, Axis, Actions>>) => {
+) => (
+  callback: Sender<ControlsEvent<Config, Axis, Actions>>,
+  onReceive: Receiver<ControlsEvent<Config, Axis, Actions>>
+) => {
   if (!ctx.controllers.mouse) return;
   if (!ctx.mouseAxis!.x && !ctx.mouseAxis!.y) return;
 
@@ -40,20 +43,36 @@ export const mouseHandlerService = <
       value: { x, y }
     });
   };
-  // notify listener service start and hook up events
-  callback({
-    type: "SET_CONTROLLER_STATUS",
-    controller: "mouse",
-    value: true
-  });
-  window!.addEventListener("mousemove", handleMouseMove);
-
-  return () => {
+  const startService = () => {
+    // notify listener service start and hook up events
+    // console.info('🎮 ✔️ starting mouse handler')
     callback({
-      type: "SET_CONTROLLER_STATUS",
+      type: "CONTROLLER_STATUS_CHANGED",
       controller: "mouse",
-      value: false
+      status: true
+    });
+    window!.addEventListener("mousemove", handleMouseMove);
+  }
+
+  const stopService = () => {
+    // console.info('🎮 🔴 stopping mouse handler')
+    callback({
+      type: "CONTROLLER_STATUS_CHANGED",
+      controller: "mouse",
+      status: false
     });
     window!.removeEventListener("mousemove", handleMouseMove);
+  }
+
+  onReceive(event => {
+    if (!isEventType(event, 'TOGGLE_CONTROLLER')) return;
+    if (event.controller !== 'mouse') return;
+    if (event.value) return startService();
+    return stopService();
+  })
+
+  startService();
+  return () => {
+    stopService()
   };
 };

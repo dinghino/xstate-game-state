@@ -8,7 +8,7 @@ export class InputsMachineError<
 > extends Error {
   constructor(
     message: string,
-    stateMachineInputEvent: INPUT_RECEIVED<Configuration, string, string>
+    stateMachineInputEvent: INPUT_RECEIVED<string>
   ) {
     super(message);
     const { axis, source, _type, activator } = stateMachineInputEvent;

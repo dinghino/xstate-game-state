@@ -68,11 +68,12 @@ export const createShipStateMachine = <Axis extends string, Actions extends stri
             UPDATE: {
               actions: ["processInputs", "updateTransform"],
             },
+            STOP: 'inactive',
           },
         },
-        paused: {
+        inactive: {
           on: {
-            RESUME: "active",
+            START: "active",
           },
         },
       },
@@ -84,9 +85,6 @@ export const createShipStateMachine = <Axis extends string, Actions extends stri
           const velocity = updateVelocities(ctx, event);
           const actions = objKeys(ctx.actions)
             .reduce((p, key) => ({ ...p, [key]: event.values[key] }), {});
-            
-        
-
           return { ...velocity, actions };
         }),
         updateTransform: () => {},

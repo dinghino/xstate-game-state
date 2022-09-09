@@ -6,6 +6,7 @@ import type { StateAxisSettings } from "../ShipState/shipState.types";
 import { createControlsMachine } from "../Controls";
 import { createShipStateMachine } from "../ShipState/shipState.machine";
 import { LocalPlayerContext } from "./localPlayer.types";
+import { forwardTo } from "xstate/lib/actions";
 
 export function createLocalPlayerMachine<
   Axis extends string,
@@ -60,10 +61,12 @@ export function createLocalPlayerMachine<
     },
     {
       actions: {
-        startInputs: send({ type: "START" }, { to: (ctx) => ctx.inputs }),
-        stopInputs: send({ type: "STOP" }, { to: (ctx) => ctx.inputs }),
-        startState: send({ type: "RESUME" }, { to: (ctx) => ctx.values }),
-        stopState: send({ type: "PAUSE" }, { to: (ctx) => ctx.values }),
+        startInputs: forwardTo((ctx) => ctx.inputs ),
+        stopInputs: forwardTo((ctx) => ctx.inputs ),
+        startState: forwardTo((ctx) => ctx.values ),
+        stopState: forwardTo((ctx) => ctx.values ),
+        // startState: send({ type: "START" }, { to: (ctx) => ctx.values }),
+        // stopState: send({ type: "STOP" }, { to: (ctx) => ctx.values }),
         updateValuesFromInputs: ({ inputs }) =>
           send(
             {

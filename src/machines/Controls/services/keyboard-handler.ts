@@ -1,7 +1,15 @@
-import { Sender } from "xstate";
+import { InvokeCallback, InvokeCreator, Receiver, Sender } from "xstate";
 import { InputsConfiguration } from "../../configuration/InputsConfiguration";
-import { forEachInputConfiguration } from "../../functions";
+import { forEachInputConfiguration, isEventType } from "../../functions";
 import { ControlsContext, ControlsEvent } from "../controls.types";
+
+// export function makeInputCallbackService<
+//   C extends InputsConfiguration<Ax, Ac>,
+//   Ax extends string,
+//   Ac extends string
+// >(): InvokeCreator<ControlsContext<C, Ax, Ac>, ControlsEvent<C, Ax, Ac>> {
+//   return (ctx, evt) => (send, receive) => {}
+// }
 
 export const keyboardHandlerService = <
   C extends InputsConfiguration<Axis, Actions>,
@@ -9,7 +17,10 @@ export const keyboardHandlerService = <
   Actions extends string
 >(
   ctx: ControlsContext<C, Axis, Actions>
-) => (callback: Sender<ControlsEvent<C, Axis, Actions>>) => {
+) => (
+  callback: Sender<ControlsEvent<C, Axis, Actions>>,
+  onReceive: Receiver<ControlsEvent<C, Axis, Actions>>
+) => {
   if (!ctx.controllers.keyboard) return;
   const { config } = ctx;
 
@@ -32,22 +43,40 @@ export const keyboardHandlerService = <
       });
     });
   };
-  console.info(ctx.controllers);
-  callback({
-    type: "SET_CONTROLLER_STATUS",
-    controller: "keyboard",
-    value: true
-  });
-  window!.addEventListener("keydown", handleKeyboardEvents);
-  window!.addEventListener("keyup", handleKeyboardEvents);
 
-  return () => {
+  const startService = () => {
+      
+    // console.info('🎮 ✔️ starting keyboard handler')
     callback({
-      type: "SET_CONTROLLER_STATUS",
+      type: "CONTROLLER_STATUS_CHANGED",
       controller: "keyboard",
-      value: false
+      status: true
+    });
+    window!.addEventListener("keydown", handleKeyboardEvents);
+    window!.addEventListener("keyup", handleKeyboardEvents);
+
+  }
+
+  const stopService = () => {
+    // console.info('🎮 🔴 stopping keyboard handler')
+    callback({
+      type: "CONTROLLER_STATUS_CHANGED",
+      controller: "keyboard",
+      status: false
     });
     window!.removeEventListener("keydown", handleKeyboardEvents);
     window!.removeEventListener("keyup", handleKeyboardEvents);
+  }
+
+  onReceive(event => {
+    if (!isEventType(event, 'TOGGLE_CONTROLLER')) return;
+    if (event.controller !== 'keyboard') return;
+    if (event.value) return startService();
+    return stopService();
+  })
+
+  startService();
+  return () => {
+    stopService()
   };
 };

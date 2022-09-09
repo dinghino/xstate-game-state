@@ -17,7 +17,7 @@ const localPlayerMachine = createLocalPlayerMachine(
 );
 
 export const playerService = interpret(localPlayerMachine)
-  .onEvent((e) => console.info("player service", e))
+  // .onEvent((e) => console.info("player service", e))
   .start();
 // s.send("START");
 // console.info(s);

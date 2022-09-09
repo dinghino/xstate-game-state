@@ -1,4 +1,4 @@
-import { assign, createMachine } from "xstate";
+import { send, assign, createMachine, forwardTo as fwdTo } from "xstate";
 import type { ControlsContext, ControlsEvent } from "./controls.types";
 import type { MouseAxisInputConfig } from "../configuration/configuration.types";
 import { keyboardHandlerService, mouseHandlerService } from "./services";
@@ -10,13 +10,12 @@ import {
 } from "./actions";
 
 import { InputsConfiguration } from "../configuration/InputsConfiguration";
-
 import { isEventType } from "../functions";
 
 export const createControlsMachine = <
   Axis extends string,
   Actions extends string,
-  Configuration extends InputsConfiguration<Axis, Actions> = InputsConfiguration<Axis, Actions>
+  Configuration extends InputsConfiguration<Axis, Actions> = InputsConfiguration<Axis, Actions>,
 >(
   // for now these are just used for typing enforcing and required.
   // we'll put them to use soon enough.
@@ -43,50 +42,57 @@ export const createControlsMachine = <
     y: getMouseAxis("y"),
   });
 
+  const setAllControllersState = (value: boolean) =>
+    config.controllers.reduce((p, v) => ({ ...p, [v]: value }), {});
+
   // Setup initial context
   const initialContext: ControlsContext<Configuration, Axis, Actions> = {
     config,
-    active: false,
     values: getInitialValues(),
     // controllers enabled by the configuration.
     // we could use these to either toggle individual controllers if needed
     // or to validate configuration against this machine (i.e. check if we can
     // handle certain types of controllers or input types)
-    controllers: config.controllers.reduce((p, v) => ({ ...p, [v]: true }), {}),
+    controllers: setAllControllersState(true),
     mouseAxis: getMouseAxisObject(),
   };
+
+  // type safe closure for dev sanity
+  const forwardTo = (...args: Parameters<typeof fwdTo>) => fwdTo<ControlsContext<Configuration, Axis, Actions>,ControlsEvent<Configuration, Axis, Actions>>(...args);
 
   return createMachine(
     {
       predictableActionArguments: true,
       tsTypes: {} as import("./controls.machine.typegen").Typegen0,
       context: initialContext,
-      initial: "idle",
+      initial: "inactive",
       id: "input-controller",
       schema: {
         context: {} as ControlsContext<Configuration, Axis, Actions>,
         events: {} as ControlsEvent<Configuration, Axis, Actions>,
       },
+      entry: ["_setupMouseAxis"],
+      invoke: [
+        { id: "keyboard", src: "keyboardHandlerService" },
+        { id: "mouse", src: "mouseHandlerService" },
+      ],
       on: {
-        SET_CONTROLLER_STATUS: {
-          actions: ["updateControllerStatus"],
-        },
+        CONTROLLER_STATUS_CHANGED: {
+            actions: ["updateControllerStatus"]
+        }
       },
       states: {
-        idle: {
-          entry: ["_resetValues", assign({ active: false })],
+        inactive: {
+          entry: ["_resetValues",],
           on: {
-            START: {
-              target: "running",
-            },
+            START: "active"
           },
         },
-        running: {
-          entry: ["_setupMouseAxis", assign({ active: true })],
-          invoke: [
-            { id: "keyboard-service", src: "keyboardHandlerService" },
-            { id: "mouse-service", src: "mouseHandlerService" },
-          ],
+        active: {
+          /* notify each service that they need to start/stop completely */
+          entry: config.controllers.map(controller => send({type: "TOGGLE_CONTROLLER", controller, value: true}, { to: controller })),
+          exit: config.controllers.map(controller => send({type: "TOGGLE_CONTROLLER", controller, value: false}, { to: controller })),
+          // @ts-ignore -- forwardTo isn't working properly
           on: {
             INPUT_RECEIVED: {
               actions: ["onKeyboardAxisReceived", "onKeyboardActionReceived"],
@@ -94,9 +100,13 @@ export const createControlsMachine = <
             MOUSE_MOVED: {
               actions: ["onMouseAxisReceived"],
             },
-            STOP: {
-              target: "idle",
+            TOGGLE_CONTROLLER: {
+              actions: [
+                forwardTo('keyboard'),
+                forwardTo('mouse')
+              ],
             },
+            STOP: "inactive",
           },
         },
       },
@@ -107,29 +117,25 @@ export const createControlsMachine = <
         mouseHandlerService,
       },
       actions: {
-        onKeyboardAxisReceived: assign(
-          inputEventHandler<Configuration, Axis, Actions>("axis", keyboardAxisHandler)
-        ),
-        onKeyboardActionReceived: assign(
-          inputEventHandler<Configuration, Axis, Actions>("action", keyboardActionHandler)
-        ),
+        onKeyboardAxisReceived: assign(inputEventHandler<Configuration, Axis, Actions>("axis", keyboardAxisHandler)),
+        onKeyboardActionReceived: assign(inputEventHandler<Configuration, Axis, Actions>("action", keyboardActionHandler)),
         onMouseAxisReceived: assign(handleMouseMove<Configuration, Axis, Actions>()),
-        updateControllerStatus: (ctx, event) => {
-          if (!isEventType(event, "SET_CONTROLLER_STATUS")) return {};
-          return assign({
-            controllers: { ...ctx.controllers, [event.controller]: event.value },
-          });
-        },
+
         // internals -------------------------------------------------------------------
-        _resetValues: assign((_) => ({
-          values: getInitialValues(),
-        })),
-        _setupMouseAxis: assign((ctx) => {
-          return {
-            mouseAxis: getMouseAxisObject(),
-          };
+
+        updateControllerStatus: assign((ctx, event) => {
+          if (!isEventType(event, "CONTROLLER_STATUS_CHANGED")) return {};
+          // console.info('🎮 inputs toggled', event)
+          const controllers = { ...ctx.controllers, [event.controller]: event.status } as typeof ctx.controllers;
+          // check if there's at least one active listener. if not send a STOP message
+          const active = Object.values(controllers).some(v => v === true);
+          if (!active) send({ type: 'STOP' })
+          return { controllers };
         }),
+        _resetValues: assign({ values: getInitialValues() }),
+        _setupMouseAxis: assign({ mouseAxis: getMouseAxisObject() }),
       },
     }
   );
 };
+
