@@ -25,6 +25,7 @@ export function createLocalPlayerMachine<
     {
       id: "local-player-machine",
       predictableActionArguments: true,
+      tsTypes: {} as import("./localPlayer.machine.typegen").Typegen0,
       schema: {
         context: {} as LocalPlayerContext<Axis, Actions, Configuration>,
       },

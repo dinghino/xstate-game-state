@@ -44,6 +44,7 @@ export const createShipStateMachine = <Axis extends string, Actions extends stri
   return createMachine(
     {
       predictableActionArguments: true,
+      tsTypes: {} as import("./shipState.machine.typegen").Typegen0,
       initial: "active",
       id: `ship-${id}-state`,
       schema: {

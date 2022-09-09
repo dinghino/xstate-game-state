@@ -59,6 +59,7 @@ export const createControlsMachine = <
   return createMachine(
     {
       predictableActionArguments: true,
+      tsTypes: {} as import("./controls.machine.typegen").Typegen0,
       context: initialContext,
       initial: "idle",
       id: "input-controller",
