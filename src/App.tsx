@@ -20,6 +20,7 @@ import { playerService } from "./state";
 import { useControlsModal } from "./hooks/use-controls-modal";
 import { Keyboard, Mouse, TableAlias } from "tabler-icons-react";
 import { TControllerType } from "./machines/configuration/configuration.types";
+import { usePauseMouse } from "./hooks/use-pause-mouse";
 
 const Provider: React.FC<{children: React.ReactNode}> = ({ children }) => (
   <ColorSchemeProvider colorScheme="dark" toggleColorScheme={() => null}>
@@ -81,6 +82,8 @@ export default function App() {
   const controllers = useSelector(inputs, ({ context }) => context.controllers);
 
   const showControlsModal = useControlsModal(inputs as any);
+
+  usePauseMouse('KeyX')
 
   React.useEffect(() => {
     inputs.send("START");

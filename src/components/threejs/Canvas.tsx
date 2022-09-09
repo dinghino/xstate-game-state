@@ -69,8 +69,6 @@ function Scene() {
     if (e.code === "KeyZ") {
       state.send("DEBUG");
     }
-    if (e.code === "KeyX") {
-    }
   });
 
   return (
