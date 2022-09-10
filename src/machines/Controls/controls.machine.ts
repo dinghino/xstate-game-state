@@ -81,7 +81,9 @@ export const createControlsMachine = <
       ],
       on: {
         CONTROLLER_STATUS_CHANGED: {
-            actions: ["updateControllerStatus"]
+            actions: [
+              "onControllerStatusChanged",
+            ]
         }
       },
       states: {
@@ -125,15 +127,16 @@ export const createControlsMachine = <
         onMouseAxisReceived: assign(handleMouseMove<Configuration, Axis, Actions>()),
 
         // internals -------------------------------------------------------------------
-
-        updateControllerStatus: assign((ctx, event) => {
+        onControllerStatusChanged: assign((ctx, event) => {
           if (!isEventType(event, "CONTROLLER_STATUS_CHANGED")) return {};
           // console.info('🎮 inputs toggled', event)
-          const controllers = { ...ctx.controllers, [event.controller]: event.status } as typeof ctx.controllers;
-          // check if there's at least one active listener. if not send a STOP message
-          const active = Object.values(controllers).some(v => v === true);
-          if (!active) send({ type: 'STOP' })
-          return { controllers };
+          const controllers = { ...ctx.controllers, [event.controller]: event.status };
+          let lockedValues = {};
+          if (!event.status) {
+            const controlled = getAxisFromKeybindings(ctx.config.keybindings, event.controller);
+            lockedValues = controlled.reduce((p, v) => ({...p, [v]: 0}), {});
+          }
+          return { controllers, values: { ...ctx.values, ...lockedValues } };
         }),
         _resetValues: assign({ values: getInitialValues() }),
         _setupMouseAxis: assign({ mouseAxis: getMouseAxisObject() }),
