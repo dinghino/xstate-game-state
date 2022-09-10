@@ -18,7 +18,8 @@ export const useControlsModal = (
       size: "xl",
       trapFocus: false,
       children: <ConfigTable config={config} />,
-      withCloseButton: false
+      withCloseButton: false,
+      centered: true
     });
   };
 };
