@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import { useSelector } from "@xstate/react";
 import { Stack, Badge, Group, Center, Divider, DefaultMantineColor, Progress, ProgressProps } from "@mantine/core";
 import { playerService } from "../state";
@@ -7,9 +7,9 @@ function evalPercent(current: number, max: number, reverse = false) {
   return ((current / max) * 100 * (reverse ? -1 : 1)).toFixed(2);
 }
 
-interface IStatBadge<Axis extends string> {
-  left?: React.ReactNode,
-  axis: Axis,
+interface IStatBadge {
+  label?: React.ReactNode,
+  value: number,
   reverse?:boolean,
   color?: DefaultMantineColor
 }
@@ -19,6 +19,15 @@ interface ISpeedBar {
   max: number;
   colors?: {pos: DefaultMantineColor, neg: DefaultMantineColor}
   reversed?:boolean
+}
+
+const StatBadge:React.FC<IStatBadge> = ({value, label, reverse, color}) => {
+  const actual = useMemo(() => value * 100 * (reverse ? -1 : 1), [value, reverse]);
+  return (
+    <Badge size="lg" radius="sm" leftSection={label} color={color} variant="dot">
+      {actual.toFixed(2).padStart(5, '0')}
+    </Badge>
+  )
 }
 
 const SpeedBar: React.FC<ISpeedBar & ProgressProps> = ({value, max, reversed, colors = {pos:'teal', neg: 'orange'}, ...props}) => {
@@ -34,51 +43,70 @@ export const VelocityStats = ({ vertical = false }: { vertical?: boolean }) => {
 
   const Wrapper = vertical ? React.Fragment : Center;
   const Inner = vertical ? Stack : Group;
-  const Splitter = vertical ? null : <Divider orientation="vertical" mx="xl" />;
 
-  const StatBadge: React.FC<IStatBadge<keyof typeof velocity>> = ({left, axis, reverse, color}) => (
-    <Badge size="lg" radius="sm" leftSection={left} color={color} variant="dot">
-      {(velocity[axis] * 100 * (reverse ? -1 : 1)).toFixed(2).padStart(6, '0')}
-    </Badge>
-  )
+  const barValues = (axis: keyof typeof velocity) => ({value: velocity[axis], max: settings[axis].max });
 
   return (
     <Wrapper>
+
       <Stack>
         <Divider label="Position" labelPosition="center"/>
         <Inner>
           <Stack>
-            <StatBadge left="X" axis="left" color="red"/>
-            <SpeedBar value={velocity.left} max={settings.left.max} />
+            <StatBadge value={velocity.left} label="X" color="red"/>
+            <SpeedBar {...barValues('left')} />
           </Stack>
           <Stack>
-            <StatBadge left="Y" axis="up" color="green"/>
-            <SpeedBar value={velocity.up} max={settings.up.max}  />
+            <StatBadge value={velocity.up} label="Y" color="green"/>
+            <SpeedBar {...barValues('up')} />
           </Stack>
           <Stack>
-            <StatBadge left="Z" axis="forward" reverse color="blue" />
-            <SpeedBar value={velocity.forward} max={settings.forward.max} reversed />
+            <StatBadge value={velocity.forward} label="Z" reverse color="blue" />
+            <SpeedBar {...barValues('forward')} reversed />
           </Stack>
         </Inner>
       </Stack>
-      {Splitter}
-      <Stack>
+
+      {/* {vertical ? null : <Divider orientation="vertical" mx="xl" />} */}
+
+      <Stack ml="sm">
         <Divider label="Rotation" labelPosition="center" mt={vertical ? 'sm' : undefined}/>
         <Inner>
           <Stack>
-            <StatBadge left="X" axis="pitch" reverse color="red" />
-            <SpeedBar value={velocity.pitch} max={settings.pitch.max} />
+            <StatBadge value={velocity.pitch} label="X" reverse color="red" />
+            <SpeedBar {...barValues('pitch')} />
           </Stack>
           <Stack>
-            <StatBadge left="Y" axis="yaw" color="green" />
-            <SpeedBar value={velocity.yaw} max={settings.yaw.max} />
+            <StatBadge value={velocity.yaw} label="Y" color="green" />
+            <SpeedBar {...barValues('yaw')} />
           </Stack>
           <Stack>
-            <StatBadge left="Z" axis="roll" color="blue" />
-            <SpeedBar value={velocity.roll} max={settings.roll.max} />
+            <StatBadge value={velocity.roll} label="Z" color="blue" />
+            <SpeedBar {...barValues('roll')} />
           </Stack>
         </Inner>
       </Stack>
     </Wrapper>
   );
 };
+
+
+const TransformStats: React.FC = () => {
+  const playerState = useSelector(playerService, ({ context }) => context.values);
+  const {position, rotation} = useSelector(playerState, ({ context }) => context.transform);
+
+  const Badges = ({rot}: {rot?: boolean}) => (
+    <Group>
+      <StatBadge label="X" value={(rot ? rotation : position)[0]} />
+      <StatBadge label="Y" value={(rot ? rotation : position)[1]} />
+      <StatBadge label="Z" value={(rot ? rotation : position)[2]} />
+    </Group>
+  )
+
+  return (
+    <>
+      <Badges />
+      <Badges rot />
+    </>
+  )
+}
