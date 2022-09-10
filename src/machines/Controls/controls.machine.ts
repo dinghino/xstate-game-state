@@ -60,6 +60,9 @@ export const createControlsMachine = <
   // type safe closure for dev sanity
   const forwardTo = (...args: Parameters<typeof fwdTo>) => fwdTo<ControlsContext<Configuration, Axis, Actions>,ControlsEvent<Configuration, Axis, Actions>>(...args);
 
+  const toggleAllControllers = (value: boolean) =>
+    config.controllers.map(controller => send({type: "TOGGLE_CONTROLLER", controller, value}, { to: controller }))
+
   return createMachine(
     {
       predictableActionArguments: true,
@@ -90,9 +93,9 @@ export const createControlsMachine = <
         },
         active: {
           /* notify each service that they need to start/stop completely */
-          entry: config.controllers.map(controller => send({type: "TOGGLE_CONTROLLER", controller, value: true}, { to: controller })),
-          exit: config.controllers.map(controller => send({type: "TOGGLE_CONTROLLER", controller, value: false}, { to: controller })),
-          // @ts-ignore -- forwardTo isn't working properly
+          entry: toggleAllControllers(true),
+          exit: toggleAllControllers(false),
+          // @ts-ignore -- forwardTo isn't working properly for TS but it works fine
           on: {
             INPUT_RECEIVED: {
               actions: ["onKeyboardAxisReceived", "onKeyboardActionReceived"],
