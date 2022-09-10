@@ -10,7 +10,7 @@ import {
 } from "./actions";
 
 import { InputsConfiguration } from "../configuration/InputsConfiguration";
-import { isEventType } from "../functions";
+import { getAxisFromKeybindings, isEventType } from "../functions";
 
 export const createControlsMachine = <
   Axis extends string,
@@ -83,6 +83,7 @@ export const createControlsMachine = <
         CONTROLLER_STATUS_CHANGED: {
             actions: [
               "onControllerStatusChanged",
+              // "sendFromControllerStatus"
             ]
         }
       },
@@ -127,6 +128,14 @@ export const createControlsMachine = <
         onMouseAxisReceived: assign(handleMouseMove<Configuration, Axis, Actions>()),
 
         // internals -------------------------------------------------------------------
+        /** FIXME: @dev this send action doesn't work because it's not supposed to
+         * what we want is to check if at least one controller is active and send
+         * START|STOP to the whole service based on that.
+         */
+        // sendFromControllerStatus: (ctx:ControlsContext<Configuration, Axis, Actions>) => {
+        //   const anyActive = Object.values(ctx.controllers).some(v => v);
+        //   return send({ type: anyActive ? 'START' : 'STOP' })
+        // },
         onControllerStatusChanged: assign((ctx, event) => {
           if (!isEventType(event, "CONTROLLER_STATUS_CHANGED")) return {};
           // console.info('🎮 inputs toggled', event)
