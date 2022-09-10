@@ -1,8 +1,16 @@
-export interface StateAxisSettings {
+export interface BaseStateAxisSettings {
   max: number;
   acceleration: number;
-  inertial?: boolean;
+  inertial?: false;
 }
+export interface InertialStateAxisSettings {
+  max: number;
+  acceleration: number;
+  inertial: true;
+  reset?: boolean;
+}
+
+export type StateAxisSettings = BaseStateAxisSettings | InertialStateAxisSettings;
 
 export interface ShipStateContext<Axis extends string, Actions extends string> {
   id: string;
