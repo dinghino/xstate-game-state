@@ -2,15 +2,12 @@ import React, { Suspense } from "react";
 import { useSelector } from "@xstate/react";
 import {
   ActionIcon,
-  Badge,
   Button,
   Center,
   ColorSchemeProvider,
   Container,
-  Divider,
   Group,
   MantineProvider,
-  Stack,
 } from "@mantine/core";
 import { closeAllModals, ModalsProvider } from "@mantine/modals";
 import { CanvasRoot } from "./components/threejs";
@@ -21,6 +18,7 @@ import { useControlsModal } from "./hooks/use-controls-modal";
 import { Keyboard, Mouse, TableAlias } from "tabler-icons-react";
 import { TControllerType } from "./machines/configuration/configuration.types";
 import { usePauseMouse } from "./hooks/use-pause-mouse";
+import { VelocityStats } from "./components/VelocityStats";
 
 const Provider: React.FC<{children: React.ReactNode}> = ({ children }) => (
   <ColorSchemeProvider colorScheme="dark" toggleColorScheme={() => null}>
@@ -34,50 +32,9 @@ const Provider: React.FC<{children: React.ReactNode}> = ({ children }) => (
   </ColorSchemeProvider>
 );
 
-function evalPercent(current: number, max: number, reverse = false) {
-  return ((current / max) * 100 * (reverse ? -1 : 1)).toFixed(2);
-}
-
-const Stats = ({ vertical = false }: { vertical?: boolean }) => {
-  const playerState = useSelector(playerService, ({ context }) => context.values);
-  const velocity = useSelector(playerState, ({ context }) => context.velocity);
-  const settings = useSelector(playerState, ({ context }) => context.settings);
-
-  const Wrapper = vertical ? React.Fragment : Center;
-  const Inner = vertical ? Stack : Group;
-  const Splitter = vertical ? <Divider my="xl" /> : <Divider orientation="vertical" mx="xl" />;
-
-  return (
-    <Wrapper>
-      <Inner>
-        <Badge size="lg" radius="sm" leftSection="F">
-          {evalPercent(velocity.forward, settings.forward.max, true)}%
-        </Badge>
-        <Badge size="lg" radius="sm" leftSection="S">
-          {evalPercent(velocity.left, settings.left.max)}%
-        </Badge>
-        <Badge size="lg" radius="sm" leftSection="V">
-          {evalPercent(velocity.up, settings.up.max)}%
-        </Badge>
-      </Inner>
-      {Splitter}
-      <Inner>
-        <Badge color="teal" size="lg" radius="sm" leftSection="P">
-          {evalPercent(velocity.pitch, settings.pitch.max, true)}%
-        </Badge>
-        <Badge color="teal" size="lg" radius="sm" leftSection="Y">
-          {evalPercent(velocity.yaw, settings.yaw.max)}%
-        </Badge>
-        <Badge color="teal" size="lg" radius="sm" leftSection="R">
-          {evalPercent(velocity.roll, settings.roll.max)}%
-        </Badge>
-      </Inner>
-    </Wrapper>
-  );
-};
-
 export default function App() {
   const inputs = useSelector(playerService, ({ context }) => context.inputs);
+  const state = useSelector(playerService, ({ context }) => context.values);
   const active = useSelector(inputs, (state) => state.matches('active'));
   const controllers = useSelector(inputs, ({ context }) => context.controllers);
 
@@ -131,7 +88,7 @@ export default function App() {
         </Group>
       </Center>
       <Center my="xl">
-        <Stats />
+        <VelocityStats />
       </Center>
 
       <Container size="xl" my="xl" sx={{ minHeight: 500, height: "75%" }}>
