@@ -1,7 +1,8 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useSelector } from "@xstate/react";
-import { Stack, Badge, Group, Center, Divider, DefaultMantineColor, Progress, ProgressProps } from "@mantine/core";
+import { Stack, Badge, Group,Divider, DefaultMantineColor, Progress, ProgressProps, Indicator } from "@mantine/core";
 import { playerService } from "../state";
+import { isNearly } from "../machines/functions";
 
 function evalPercent(current: number, max: number, reverse = false) {
   return ((current / max) * 100 * (reverse ? -1 : 1)).toFixed(2);
@@ -18,76 +19,84 @@ interface ISpeedBar {
   value: number;
   max: number;
   colors?: {pos: DefaultMantineColor, neg: DefaultMantineColor}
-  reversed?:boolean
+  reverse?:boolean
 }
 
 const StatBadge:React.FC<IStatBadge> = ({value, label, reverse, color}) => {
   const actual = useMemo(() => value * 100 * (reverse ? -1 : 1), [value, reverse]);
   return (
-    <Badge size="lg" radius="sm" leftSection={label} color={color} variant="dot">
-      {actual.toFixed(2).padStart(5, '0')}
+    <Badge color={color} variant="dot" radius="sm" size="lg" leftSection={label}>
+      {actual.toFixed(2).padStart(6, '0')}
     </Badge>
   )
 }
 
-const SpeedBar: React.FC<ISpeedBar & ProgressProps> = ({value, max, reversed, colors = {pos:'teal', neg: 'orange'}, ...props}) => {
-  const barValue = Math.abs(+evalPercent(value+max * (reversed ? -1 : 1), max*2));
-  const color = barValue === 50 ? 'cyan' : barValue > 50 ? colors.pos : colors.neg
-  return <Progress color={color} radius="xs" size="xs" {...props} value={barValue} />
+const SpeedBar: React.FC<ISpeedBar & ProgressProps> = ({value, max, reverse, colors = {pos:'teal', neg: 'orange'}, ...props}) => {
+  const v = value * (reverse ? -1 : 1)
+  // const barValue = Math.abs(+evalPercent(value+max * (reverse ? -1 : 1), max*2));
+  const barValueP = +evalPercent(v, max);
+  const barValueN = v < 0 ? Math.abs(barValueP) : 0;
+  const color = v > 0 ? 'cyan' : v > 50 ? colors.pos : colors.neg
+  const indicatorStyles = {
+    indicator: {width: 6, marginLeft: -1, transition: 'background-color 0.5s ease-out'}
+  }
+  return (
+    <>
+    <Progress radius={"sm"} color={color} size="lg" {...props} value={barValueN} style={{transform: "rotate(180deg)", marginRight: -2}}/>
+    <Indicator position="middle-center" radius="xs" color={isNearly(value, 0, 0.05) ? "green": color} size={16} styles={indicatorStyles}>{null}</Indicator>
+    <Progress radius={"sm"} color={color} size="lg" {...props} value={barValueP} style={{marginLeft: -2}}/>
+    </>
+  )
 }
 
-export const VelocityStats = ({ vertical = false }: { vertical?: boolean }) => {
+interface IItem<
+  T extends string,
+  V = {[k in T]: number},
+  S = {[k in T]: {max: number}}
+> {
+  axis: T,
+  velocity: V,
+  settings: S,
+  label: string,
+  color: DefaultMantineColor,
+  reverse?: boolean
+}
+
+const Item = <T extends string>({axis, reverse, velocity, settings,...props}: IItem<T>) => {
+  const barValues = (axis: keyof typeof velocity) => ({value: velocity[axis], max: settings[axis].max });
+  return (
+    <Group grow position="center" spacing="xs">
+      <StatBadge value={velocity[axis]} {...props} reverse={reverse}/>
+      <Group grow spacing={0}>
+        <SpeedBar {...barValues(axis)} reverse={reverse} />
+      </Group>
+    </Group>
+  )
+}
+
+
+export const VelocityStats = () => {
   const playerState = useSelector(playerService, ({ context }) => context.values);
   const velocity = useSelector(playerState, ({ context }) => context.velocity);
   const settings = useSelector(playerState, ({ context }) => context.settings);
 
-  // const Wrapper = vertical ? React.Fragment : Center;
-  const Wrapper = vertical ? React.Fragment : Center;
-  const Inner = vertical ? Stack : Group;
-
-  const barValues = (axis: keyof typeof velocity) => ({value: velocity[axis], max: settings[axis].max });
-
   return (
-    <Wrapper>
-
+    <>
       <Stack>
         <Divider label="Position" labelPosition="center"/>
-        <Inner>
-          <Stack>
-            <StatBadge value={velocity.left} label="X" color="red"/>
-            <SpeedBar {...barValues('left')} />
-          </Stack>
-          <Stack>
-            <StatBadge value={velocity.up} label="Y" color="green"/>
-            <SpeedBar {...barValues('up')} />
-          </Stack>
-          <Stack>
-            <StatBadge value={velocity.forward} label="Z" reverse color="blue" />
-            <SpeedBar {...barValues('forward')} reversed />
-          </Stack>
-        </Inner>
+
+        <Item settings={settings} velocity={velocity} axis="left" label="X" color="red"/>
+        <Item settings={settings} velocity={velocity} axis="up" label="Y" color="green"/>
+        <Item settings={settings} velocity={velocity} axis="forward" label="Z" color="blue" reverse />
+
+        <Divider label="Rotation" labelPosition="center"/>
+
+        <Item settings={settings} velocity={velocity} axis="pitch" label="X" color="red" />
+        <Item settings={settings} velocity={velocity} axis="yaw" label="Y" color="green" reverse />
+        <Item settings={settings} velocity={velocity} axis="roll" label="Z" color="blue" reverse />
       </Stack>
 
-      {/* {vertical ? null : <Divider orientation="vertical" mx="xl" />} */}
-
-      <Stack>
-        <Divider label="Rotation" labelPosition="center" mt={vertical ? 'sm' : undefined}/>
-        <Inner>
-          <Stack>
-            <StatBadge value={velocity.pitch} label="X" reverse color="red" />
-            <SpeedBar {...barValues('pitch')} />
-          </Stack>
-          <Stack>
-            <StatBadge value={velocity.yaw} label="Y" color="green" />
-            <SpeedBar {...barValues('yaw')} />
-          </Stack>
-          <Stack>
-            <StatBadge value={velocity.roll} label="Z" color="blue" />
-            <SpeedBar {...barValues('roll')} />
-          </Stack>
-        </Inner>
-      </Stack>
-    </Wrapper>
+    </>
   );
 };
 
