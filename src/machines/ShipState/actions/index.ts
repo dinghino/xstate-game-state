@@ -1,25 +1,24 @@
 import { objKeys } from "../../../utils";
-import { clamp, isEventType } from "../../functions";
+import { clamp, isEventType, isNearly } from "../../functions";
 import type { ShipStateContext, ShipStateEvent } from "../shipState.types";
 
-function computeInertialVelocity(
-  current: number,
-  max: number,
-  acceleration: number,
-  input: number,
-  inertial?: boolean
-): number {
-  const newValue = inertial
-    ? current + acceleration * input
-    : acceleration * input;
 
-  const out = clamp(newValue, -max, max);
-  return out;
+function handleBreaking(current: number, acceleration: number, breaking: boolean|undefined):number {
+  if (!breaking) return 0;
+  if (isNearly(current, 0, acceleration)) return -current;
+  return (current > 0 ? -acceleration : acceleration) * (3/2);
+
+}
+
+function compute(curr: number, acc: number, input: number, inertial?:boolean): number {
+  if (inertial) return curr + acc * input;
+  return acc * input;
 }
 
 export function updateVelocities<Axis extends string, Actions extends string>(
   ctx: ShipStateContext<Axis, Actions>,
-  event: ShipStateEvent<Axis, Actions>
+  event: ShipStateEvent<Axis, Actions>,
+  breaking?: boolean
 ): { velocity: Record<Axis, number> } | {} {
   if (!isEventType(event, "UPDATE")) return {};
 
@@ -27,16 +26,16 @@ export function updateVelocities<Axis extends string, Actions extends string>(
   const out = {} as Record<Axis, number>;
 
   for (let axis of objKeys(velocity)) {
-    const curr = velocity[axis];
+    const current = velocity[axis];
     const { max, acceleration, inertial } = settings[axis];
     const input = event.values[axis];
-    out[axis] = computeInertialVelocity(
-      curr,
-      max,
-      acceleration,
-      input,
-      inertial
-    );
+
+    const newValue =
+      compute(current, acceleration, input, inertial) +
+      handleBreaking(current, acceleration, breaking);
+
+    out[axis] = clamp(newValue, -max, max);
+    
   }
   // console.info("updating ship state with", out);
   return { velocity: out };

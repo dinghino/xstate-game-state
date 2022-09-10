@@ -82,10 +82,41 @@ export const createShipStateMachine = <Axis extends string, Actions extends stri
       actions: {
         processInputs: assign((ctx, event) => {
           if (!isEventType(event, "UPDATE")) return {};
-          const velocity = updateVelocities(ctx, event);
-          const actions = objKeys(ctx.actions)
-            .reduce((p, key) => ({ ...p, [key]: event.values[key] }), {});
-          return { ...velocity, actions };
+
+          /**
+           * FIXME: Actions should be handled through configuration completetly
+           * since the name of the actions and what they do are user defined.
+           * Ideally we would need to set up a bunch of "dynamic" actions event
+           * like `actions.map(a => `on${a}`) on the on.UPDATE event actions
+           * and leave them blank, so that they become required when creating
+           * the service.
+           * 
+           * Problems are
+           * - this specific service is managed inside the LocalPlayer
+           *   machine, so we would have to add a new argument that gets forwarded
+           *   with the type of xstate "missing action definitions" (whatever that is)
+           *   and forward it here IF IT IS POSSIBLE AT ALL.
+           * - Some actions (like breaking in this specific case) require to
+           *   be either handled BEFORE the axis or to after, receiving the new
+           *   axis values to do stuff with/on them too.
+           * - Since all the typings are dynamic, even checking if a value is
+           *   in the actions object is a bit of a mess. We may need to add some
+           *   custom extra types to handle the actual actions.
+           * @dev fix this hack
+           */
+          const newActions = objKeys(ctx.actions)
+            .reduce((p, key) => ({ ...p, [key]: event.values[key] }), {}) as Record<Actions,number> & { break?:number};
+          let breaking = false;
+          if ('break' in newActions) {
+            breaking = !!newActions.break;
+          }
+          // TODO: Invert actions and velocities so we can pass down
+          // the actions to the function and use them to do stuff (break/jump)
+          const velocity = updateVelocities(ctx, event, breaking);
+          return {
+            ...velocity,
+            actions: newActions
+          };
         }),
         updateTransform: () => {},
         resetContext: assign((_) => ({
