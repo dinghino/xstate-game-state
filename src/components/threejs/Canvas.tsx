@@ -31,10 +31,10 @@ function updateObjectTransform(object: Object3D, inputs: Values, dt: number) {
   if (!object) return;
   object.rotateOnWorldAxis(AY, inputs.yaw * dt);
   object.rotateOnWorldAxis(AX, inputs.pitch * dt);
+  object.rotateOnWorldAxis(AZ, (Math.PI / 2) * inputs.roll * dt);
   object.translateX(inputs.left * dt);
   object.translateY(inputs.up * dt);
   object.translateZ(inputs.forward * dt);
-  object.rotateOnWorldAxis(AZ, (Math.PI / 2) * inputs.roll * dt);
 }
 
 function centerObject(object: Object3D) {
@@ -47,6 +47,13 @@ function centerObject(object: Object3D) {
   object.rotation.z = 0;
 }
 
+// function parseTransform(values: Vector3|Euler): [number, number, number] {
+function parseTransform(obj: Object3D): {position: [number, number, number], rotation: [number, number, number]} {
+  const p = obj.position;
+  const r = obj.rotation;
+  return { position: [p.x, p.y, p.z], rotation: [r.x, r.y, r.z] }
+}
+
 function Scene() {
   const cube = React.useRef<Mesh>(null!);
 
@@ -57,8 +64,10 @@ function Scene() {
   const velocity = useSelector(state, ({ context }) => context.velocity);
 
   useFrame((_, dt) => {
+    const obj = cube.current;
     state.send({ type: "UPDATE", values });
-    updateObjectTransform(cube.current, velocity, dt);
+    updateObjectTransform(obj, velocity, dt);
+    state.send({ type: 'UPDATE_TRANSFORM', ...parseTransform(obj) });
   });
 
   useWindowEvent("keypress", (e) => {

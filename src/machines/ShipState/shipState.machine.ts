@@ -20,6 +20,14 @@ function setupInitials<T extends string>(arr: readonly T[], v = 0) {
   return arr.reduce((p, k) => ({ ...p, [k]: v }), {} as { [k in T]: number });
 }
 
+type Values = [x:number, y:number, z:number]
+function updateTransformValues(current:Values, next:Values): [boolean, Values] {
+  if (current.every((v, i) => v === next[i])) {
+    return [false, current];
+  }
+  return [true, next]
+}
+
 // State machine factory //////////////////////////////////////////////////////
 export const createShipStateMachine = <Axis extends string, Actions extends string>({
   id,
@@ -66,9 +74,12 @@ export const createShipStateMachine = <Axis extends string, Actions extends stri
         active: {
           on: {
             UPDATE: {
-              actions: ["processInputs", "updateTransform"],
+              actions: ["processInputs"],
             },
             STOP: 'inactive',
+            UPDATE_TRANSFORM: {
+              actions: "onUpdateTransform",
+            }
           },
         },
         inactive: {
@@ -118,7 +129,16 @@ export const createShipStateMachine = <Axis extends string, Actions extends stri
             actions: newActions
           };
         }),
-        updateTransform: () => {},
+        onUpdateTransform: assign((context, event) => {
+          if (!isEventType(event, "UPDATE_TRANSFORM")) return {};
+          const current = context.transform;
+          const [pChanged, position] = updateTransformValues(current.position, event.position)
+          const [rChanged, rotation] = updateTransformValues(current.rotation, event.rotation);
+          // nothing changed. do not update the context.
+          if (!pChanged && !rChanged) return {};
+          return { transform: { position, rotation, } }
+        }),
+
         resetContext: assign((_) => ({
           velocity: setupInitials(axis),
           actions: setupInitials(actions),
