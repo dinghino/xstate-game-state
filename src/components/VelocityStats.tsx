@@ -41,6 +41,7 @@ export const VelocityStats = ({ vertical = false }: { vertical?: boolean }) => {
   const velocity = useSelector(playerState, ({ context }) => context.velocity);
   const settings = useSelector(playerState, ({ context }) => context.settings);
 
+  // const Wrapper = vertical ? React.Fragment : Center;
   const Wrapper = vertical ? React.Fragment : Center;
   const Inner = vertical ? Stack : Group;
 
@@ -69,7 +70,7 @@ export const VelocityStats = ({ vertical = false }: { vertical?: boolean }) => {
 
       {/* {vertical ? null : <Divider orientation="vertical" mx="xl" />} */}
 
-      <Stack ml="sm">
+      <Stack>
         <Divider label="Rotation" labelPosition="center" mt={vertical ? 'sm' : undefined}/>
         <Inner>
           <Stack>
