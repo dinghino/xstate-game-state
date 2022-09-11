@@ -1,4 +1,4 @@
-import { send, assign, createMachine, forwardTo as fwdTo } from 'xstate'
+import { send, assign, createMachine, forwardTo as fwdTo, InterpreterFrom } from 'xstate'
 import type { ControlsContext, ControlsEvent } from './controls.types'
 import type { MouseAxisInputConfig } from '../configuration/configuration.types'
 import { keyboardHandlerService, mouseHandlerService } from './services'
@@ -11,6 +11,18 @@ import {
 
 import { InputsConfiguration } from '../configuration/InputsConfiguration'
 import { getAxisFromKeybindings, isEventType } from '../functions'
+
+export type TControlsMachine<
+  A extends string,
+  B extends string,
+  C extends InputsConfiguration<A, B> = InputsConfiguration<A, B>
+> = typeof createControlsMachine<A,B,C>;
+export type TControlsService<
+  A extends string,
+  B extends string,
+  C extends InputsConfiguration<A, B> = InputsConfiguration<A, B>
+> = InterpreterFrom<TControlsMachine<A,B,C>>;
+
 
 export const createControlsMachine = <
   Axis extends string,
@@ -46,7 +58,7 @@ export const createControlsMachine = <
     config.controllers.reduce((p, v) => ({ ...p, [v]: value }), {})
 
   // Setup initial context
-  const initialContext: ControlsContext<Configuration, Axis, Actions> = {
+  const initialContext: ControlsContext<Axis, Actions> = {
     config,
     values: getInitialValues(),
     // controllers enabled by the configuration.
@@ -58,7 +70,7 @@ export const createControlsMachine = <
   }
 
   // type safe closure for dev sanity
-  const forwardTo = (...args: Parameters<typeof fwdTo>) => fwdTo<ControlsContext<Configuration, Axis, Actions>,ControlsEvent<Configuration, Axis, Actions>>(...args)
+  const forwardTo = (...args: Parameters<typeof fwdTo>) => fwdTo<ControlsContext<Axis, Actions>,ControlsEvent<Axis, Actions>>(...args)
 
   const toggleAllControllers = (value: boolean) =>
     config.controllers.map(controller => send({type: 'TOGGLE_CONTROLLER', controller, value}, { to: controller }))
@@ -71,8 +83,8 @@ export const createControlsMachine = <
       initial: 'inactive',
       id: 'input-controller',
       schema: {
-        context: {} as ControlsContext<Configuration, Axis, Actions>,
-        events: {} as ControlsEvent<Configuration, Axis, Actions>,
+        context: {} as ControlsContext<Axis, Actions>,
+        events: {} as ControlsEvent<Axis, Actions>,
       },
       entry: ['_setupMouseAxis'],
       invoke: [
@@ -123,16 +135,16 @@ export const createControlsMachine = <
         mouseHandlerService,
       },
       actions: {
-        onKeyboardAxisReceived: assign(inputEventHandler<Configuration, Axis, Actions>('axis', keyboardAxisHandler)),
-        onKeyboardActionReceived: assign(inputEventHandler<Configuration, Axis, Actions>('action', keyboardActionHandler)),
-        onMouseAxisReceived: assign(handleMouseMove<Configuration, Axis, Actions>()),
+        onKeyboardAxisReceived: assign(inputEventHandler<Axis, Actions>('axis', keyboardAxisHandler)),
+        onKeyboardActionReceived: assign(inputEventHandler<Axis, Actions>('action', keyboardActionHandler)),
+        onMouseAxisReceived: assign(handleMouseMove<Axis, Actions>()),
 
         // internals -------------------------------------------------------------------
         /** FIXME: @dev this send action doesn't work because it's not supposed to
          * what we want is to check if at least one controller is active and send
          * START|STOP to the whole service based on that.
          */
-        // sendFromControllerStatus: (ctx:ControlsContext<Configuration, Axis, Actions>) => {
+        // sendFromControllerStatus: (ctx:ControlsContext<Axis, Actions>) => {
         //   const anyActive = Object.values(ctx.controllers).some(v => v);
         //   return send({ type: anyActive ? 'START' : 'STOP' })
         // },

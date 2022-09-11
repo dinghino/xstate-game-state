@@ -115,7 +115,7 @@ const useStyles = createStyles((theme) => ({
   }
 }))
 
-export const ConfigTable: React.FC<{ config: InputsConfiguration<string, string> }> = ({
+export const ConfigTable: React.FC<{ config: InputsConfiguration<any, any> }> = ({
   config
 }) => {
   const { classes } = useStyles()

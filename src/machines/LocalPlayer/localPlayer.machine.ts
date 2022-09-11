@@ -1,4 +1,4 @@
-import { assign, createMachine, spawn, send } from 'xstate'
+import { assign, createMachine, spawn, send, InterpreterFrom } from 'xstate'
 
 import type { InputsConfiguration } from '../configuration/InputsConfiguration'
 import type { StateAxisSettings } from '../ShipState/shipState.types'
@@ -6,7 +6,9 @@ import type { StateAxisSettings } from '../ShipState/shipState.types'
 import { createControlsMachine } from '../Controls'
 import { createShipStateMachine } from '../ShipState/shipState.machine'
 import { LocalPlayerContext, LocalPlayerEvent } from './localPlayer.types'
-import { forwardTo } from 'xstate/lib/actions'
+
+export type TPlayerMachine<A extends string, B extends string> = typeof createLocalPlayerMachine<A,B>;
+export type TPlayerService<A extends string, B extends string> = InterpreterFrom<TPlayerMachine<A,B>>;
 
 export function createLocalPlayerMachine<
   Axis extends string,
@@ -72,10 +74,12 @@ export function createLocalPlayerMachine<
     },
     {
       actions: {
-        startInputs: forwardTo((ctx) => ctx.inputs ),
-        stopInputs: forwardTo((ctx) => ctx.inputs ),
-        startState: forwardTo((ctx) => ctx.values ),
-        stopState: forwardTo((ctx) => ctx.values ),
+
+        startInputs: send({ type: 'START' }, { to: (ctx) => ctx.inputs }),
+        stopInputs: send({ type: 'STOP' }, { to: (ctx) => ctx.inputs }),
+
+        startState: send({ type: 'START' }, { to: (ctx) => ctx.values }),
+        stopState: send({ type: 'STOP' }, { to: (ctx) => ctx.values }),
 
         updateValuesFromInputs: send(
           ( {inputs }) => ({ type: 'UPDATE', values: inputs.getSnapshot().context.values }),

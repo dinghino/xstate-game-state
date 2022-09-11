@@ -1,6 +1,3 @@
-import { InterpreterFrom } from 'xstate'
-import type { createControlsMachine } from '../Controls'
-
 export type OptionalPropertyOf<T extends object> = Exclude<
   {
     [K in keyof T]: T extends Record<K, T[K]> ? never : K;
@@ -17,10 +14,6 @@ export type Optionals<
 > = {
   [key in K]-?: T[key];
 };
-
-export type ControlsService = InterpreterFrom<
-  ReturnType<typeof createControlsMachine>
->;
 
 export type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends <
   T

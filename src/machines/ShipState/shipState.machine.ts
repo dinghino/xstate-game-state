@@ -1,10 +1,13 @@
-import { assign, createMachine } from 'xstate'
+import { assign, createMachine, InterpreterFrom } from 'xstate'
 import { objKeys } from '../../utils'
 import { isEventType } from '../functions'
 import { updateVelocities } from './actions'
 import type { ShipStateContext, ShipStateEvent, StateAxisSettings } from './shipState.types'
 
 export type AxisSettings<Axis extends string = string> = Record<Axis, StateAxisSettings>;
+
+export type TStateMachine<A extends string, B extends string> = typeof createShipStateMachine<A,B>;
+export type TStateService<A extends string, B extends string> = InterpreterFrom<TStateMachine<A,B>>;
 
 export interface ShipStateFactoryOptions<
   Axis extends string = string,

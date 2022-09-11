@@ -1,42 +1,19 @@
-import { InterpreterFrom } from 'xstate'
-import { TControllerType } from '../configuration/configuration.types'
+import type { InterpreterFrom } from 'xstate'
+import type { TControllerType } from '../configuration/configuration.types'
 import type { InputsConfiguration } from '../configuration/InputsConfiguration'
-import { createControlsMachine } from '../Controls'
-import { createShipStateMachine } from '../ShipState/shipState.machine'
-import { StateTransform } from '../ShipState/shipState.types'
-
-// Helpers --------------------------------------------------------------------
-
-/**
- * Workaround type (Wrapper is at the bottom) to get a ReturnType
- * of a generic function such our factories
- */
-export type GenericCollectionReturnType<
-  K extends keyof Wrapper<Axis, Action, Config>,
-  Axis extends string,
-  Action extends string,
-  Config extends InputsConfiguration<Axis, Action>
-> = ReturnType<Wrapper<Axis, Action, Config>[K]>;
-
-export class Wrapper<Ax extends string, Ac extends string, C extends InputsConfiguration<Ax, Ac>> {
-  //HINT: do not forget to match arguments to your function
-  createControlsMachine = (...args: any[]) =>
-    // @ts-ignore
-    createControlsMachine<Ax, Ac, C>(...args)
-  createShipStateMachine = (...args: any[]) =>
-    // @ts-ignore
-    createShipStateMachine<Ax, Ac>(...args)
-}
+import type { TControlsMachine } from '../Controls'
+import type { TStateMachine } from '../ShipState/shipState.machine'
+import type { StateTransform } from '../ShipState/shipState.types'
 
 // Machine types --------------------------------------------------------------
 
 export type LocalPlayerContext<
   Ax extends string,
   Ac extends string,
-  C extends InputsConfiguration<Ax, Ac>
+  C extends InputsConfiguration<Ax, Ac> = InputsConfiguration<Ax, Ac>,
 > = {
-  values: InterpreterFrom<GenericCollectionReturnType<'createShipStateMachine', Ax, Ac, C>>;
-  inputs: InterpreterFrom<GenericCollectionReturnType<'createControlsMachine', Ax, Ac, C>>;
+  values: InterpreterFrom<ReturnType<TStateMachine<Ax, Ac>>>;
+  inputs: InterpreterFrom<ReturnType<TControlsMachine<Ax, Ac, C>>>;
 };
 
 // Return type extracting

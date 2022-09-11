@@ -1,15 +1,9 @@
 import type { ControlsContext, ControlsEvent } from '../controls.types'
-
 import { isEventType } from '../../functions'
-import { InputsConfiguration } from '../../configuration/InputsConfiguration'
 
-export const mouseMoveHandler = <
-  C extends InputsConfiguration<Axis, Actions>,
-  Axis extends string,
-  Actions extends string
->(
-  ctx: ControlsContext<C, Axis, Actions>,
-  event: ControlsEvent<C, Axis, Actions>
+export const mouseMoveHandler = <Axis extends string, Actions extends string>(
+  ctx: ControlsContext<Axis, Actions>,
+  event: ControlsEvent<Axis, Actions>
 ) => {
   if (!isEventType(event, 'MOUSE_MOVED')) return {}
   let values = { ...ctx.values }
@@ -26,13 +20,9 @@ export const mouseMoveHandler = <
   return { values }
 }
 
-export function handleMouseMove<
-  C extends InputsConfiguration<Axis, Actions>,
-  Axis extends string,
-  Actions extends string
->() {
+export function handleMouseMove<Axis extends string,Actions extends string>() {
   return (
-    ctx: ControlsContext<C, Axis, Actions>,
-    event: ControlsEvent<C, Axis, Actions>
-  ) => mouseMoveHandler<C, Axis, Actions>(ctx, event)
+    ctx: ControlsContext<Axis, Actions>,
+    event: ControlsEvent<Axis, Actions>
+  ) => mouseMoveHandler<Axis, Actions>(ctx, event)
 }

@@ -1,17 +1,15 @@
 import { Receiver, Sender } from 'xstate'
-import { InputsConfiguration } from '../../configuration/InputsConfiguration'
 import { centerNormalize, isEventType, isNearly } from '../../functions'
 import { ControlsContext, ControlsEvent } from '../controls.types'
 
 export const mouseHandlerService = <
-  Config extends InputsConfiguration<Axis, Actions>,
   Axis extends string,
   Actions extends string
 >(
-  ctx: ControlsContext<Config, Axis, Actions>
+  ctx: ControlsContext<Axis, Actions>
 ) => (
-  callback: Sender<ControlsEvent<Config, Axis, Actions>>,
-  onReceive: Receiver<ControlsEvent<Config, Axis, Actions>>
+  callback: Sender<ControlsEvent<Axis, Actions>>,
+  onReceive: Receiver<ControlsEvent<Axis, Actions>>
 ) => {
   if (!ctx.controllers.mouse) return
   if (!ctx.mouseAxis!.x && !ctx.mouseAxis!.y) return

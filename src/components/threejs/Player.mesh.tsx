@@ -1,8 +1,9 @@
 import { useWindowEvent } from '@mantine/hooks'
 import { MeshProps, useFrame } from '@react-three/fiber'
-import { useSelector } from '@xstate/react'
+// import { useSelector } from '@xstate/react'
 import React from 'react'
 import { Mesh, Object3D, Vector3 } from 'three'
+import { usePlayerVelocity } from '../../machines/hooks'
 import { playerService } from '../../state'
 interface Values {
   yaw: number;
@@ -46,8 +47,7 @@ function centerObject(object: Object3D) {
 
 export const Player: React.FC<MeshProps> = ((props) => {
   const cube = React.useRef<Mesh>(null!)
-  const state = useSelector(playerService, ({ context }) => context.values)
-  const velocity = useSelector(state, ({ context }) => context.velocity)
+  const velocity = usePlayerVelocity(playerService)
 
   /** @debug event listener for debugging and bug fixing */
   useWindowEvent('keypress', (e) => {

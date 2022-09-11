@@ -1,25 +1,15 @@
 import { Receiver, Sender } from 'xstate'
-import { InputsConfiguration } from '../../configuration/InputsConfiguration'
 import { forEachInputConfiguration, isEventType } from '../../functions'
 import { ControlsContext, ControlsEvent } from '../controls.types'
 
-// export function makeInputCallbackService<
-//   C extends InputsConfiguration<Ax, Ac>,
-//   Ax extends string,
-//   Ac extends string
-// >(): InvokeCreator<ControlsContext<C, Ax, Ac>, ControlsEvent<C, Ax, Ac>> {
-//   return (ctx, evt) => (send, receive) => {}
-// }
-
 export const keyboardHandlerService = <
-  C extends InputsConfiguration<Axis, Actions>,
   Axis extends string,
   Actions extends string
 >(
-  ctx: ControlsContext<C, Axis, Actions>
+  ctx: ControlsContext<Axis, Actions>
 ) => (
-  callback: Sender<ControlsEvent<C, Axis, Actions>>,
-  onReceive: Receiver<ControlsEvent<C, Axis, Actions>>
+  callback: Sender<ControlsEvent<Axis, Actions>>,
+  onReceive: Receiver<ControlsEvent<Axis, Actions>>
 ) => {
   if (!ctx.controllers.keyboard) return
   const { config } = ctx
