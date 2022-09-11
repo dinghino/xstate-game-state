@@ -1,4 +1,4 @@
-import { InterpreterFrom } from 'xstate'
+import { AnyStateMachine, InterpreterFrom } from 'xstate'
 import type { createControlsMachine } from '../Controls'
 
 export type OptionalPropertyOf<T extends object> = Exclude<
@@ -30,3 +30,9 @@ export type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends <
 
 export type WithOptional<T, K extends keyof T> = Omit<T, K> &
   Partial<Pick<T, K>>;
+
+/**
+ * Helper type to create to get the `state` of a state machine created by a machine factory
+ * function
+ */
+export type TState<T extends (...args: any[]) => AnyStateMachine> = InterpreterFrom<ReturnType<T>>['state']
