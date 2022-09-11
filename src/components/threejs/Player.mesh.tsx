@@ -46,25 +46,28 @@ function centerObject(object: Object3D) {
 
 export const Player: React.FC<MeshProps> = ((props) => {
   const cube = React.useRef<Mesh>(null!)
-
-  const inputs = useSelector(playerService, ({ context }) => context.inputs)
   const state = useSelector(playerService, ({ context }) => context.values)
-
-  const values = useSelector(inputs, ({ context }) => context.values)
   const velocity = useSelector(state, ({ context }) => context.velocity)
 
+  /** @debug event listener for debugging and bug fixing */
   useWindowEvent('keypress', (e) => {
     if (e.code === 'KeyT') {
       centerObject(cube!.current)
-      state.send('RESET')
+      playerService.send('RESET_STATE')
     }
   })
 
+  useFrame(() => playerService.send('UPDATE'))
+
   useFrame((_, dt) => {
     const obj = cube.current
-    state.send({ type: 'UPDATE', values })
     updateObjectTransform(obj, velocity, dt)
-    state.send({ type: 'UPDATE_TRANSFORM', ...parseTransform(obj) })
+    /**
+     * @dev this is a separate object because for now we're pulling
+     * the evaluated transform from the scene instead of computing it outside
+     * for time constraints reasons
+     */
+    playerService.send({ type: 'UPDATE_STATE', ...parseTransform(obj) })
   })
 
   return (

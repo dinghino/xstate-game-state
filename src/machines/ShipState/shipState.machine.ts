@@ -4,6 +4,8 @@ import { isEventType } from '../functions'
 import { updateVelocities } from './actions'
 import type { ShipStateContext, ShipStateEvent, StateAxisSettings } from './shipState.types'
 
+export type AxisSettings<Axis extends string = string> = Record<Axis, StateAxisSettings>;
+
 export interface ShipStateFactoryOptions<
   Axis extends string = string,
   Actions extends string = string
@@ -11,7 +13,7 @@ export interface ShipStateFactoryOptions<
   id: string;
   axis: readonly Axis[];
   actions: readonly Actions[];
-  settings: Record<Axis, StateAxisSettings>;
+  settings: AxisSettings<Axis>;
 }
 
 // Helper functions ////////////////////////////////////////////////////////////
@@ -44,8 +46,7 @@ export const createShipStateMachine = <Axis extends string, Actions extends stri
     transform: {
       position: [0, 0, 0],
       rotation: [0, 0, 0],
-    },
-    debugging: false,
+    }
   })
 
   // Machine definition =======================================================
@@ -62,9 +63,6 @@ export const createShipStateMachine = <Axis extends string, Actions extends stri
       context: getInitialContext(),
       // global events
       on: {
-        DEBUG: {
-          actions: [],
-        },
         RESET: {
           actions: ['resetContext', (c, e) => console.info('ship state', e)],
         },

@@ -23,6 +23,7 @@ export const keyboardHandlerService = <
 ) => {
   if (!ctx.controllers.keyboard) return
   const { config } = ctx
+  let isRunning = false
 
   const handleKeyboardEvents = (e: KeyboardEvent) => {
     forEachInputConfiguration<Axis, Actions>(config, (axis, input) => {
@@ -45,7 +46,7 @@ export const keyboardHandlerService = <
   }
 
   const startService = () => {
-      
+    if (isRunning) return
     // console.info('🎮 ✔️ starting keyboard handler')
     callback({
       type: 'CONTROLLER_STATUS_CHANGED',
@@ -54,10 +55,11 @@ export const keyboardHandlerService = <
     })
     window!.addEventListener('keydown', handleKeyboardEvents)
     window!.addEventListener('keyup', handleKeyboardEvents)
-
+    isRunning = true
   }
 
   const stopService = () => {
+    if (!isRunning) return
     // console.info('🎮 🔴 stopping keyboard handler')
     callback({
       type: 'CONTROLLER_STATUS_CHANGED',
@@ -66,6 +68,7 @@ export const keyboardHandlerService = <
     })
     window!.removeEventListener('keydown', handleKeyboardEvents)
     window!.removeEventListener('keyup', handleKeyboardEvents)
+    isRunning = false
   }
 
   onReceive(event => {

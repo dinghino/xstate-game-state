@@ -15,6 +15,7 @@ export const mouseHandlerService = <
 ) => {
   if (!ctx.controllers.mouse) return
   if (!ctx.mouseAxis!.x && !ctx.mouseAxis!.y) return
+  let isRunning = false
 
   // mouse move callback
   const handleMouseMove = (mouse: MouseEvent) => {
@@ -44,6 +45,8 @@ export const mouseHandlerService = <
     })
   }
   const startService = () => {
+    if (isRunning) return
+
     // notify listener service start and hook up events
     // console.info('🎮 ✔️ starting mouse handler')
     callback({
@@ -52,9 +55,12 @@ export const mouseHandlerService = <
       status: true
     })
     window!.addEventListener('mousemove', handleMouseMove)
+    isRunning = true
   }
 
   const stopService = () => {
+    if (!isRunning) return
+
     // console.info('🎮 🔴 stopping mouse handler')
     callback({
       type: 'CONTROLLER_STATUS_CHANGED',
@@ -62,6 +68,7 @@ export const mouseHandlerService = <
       status: false
     })
     window!.removeEventListener('mousemove', handleMouseMove)
+    isRunning = false
   }
 
   onReceive(event => {
