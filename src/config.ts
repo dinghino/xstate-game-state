@@ -119,13 +119,14 @@ export const shipConfig: Omit<ShipStateFactoryOptions<Axis, Action>, "id"> = {
   axis: AXIS,
   actions: ACTIONS,
   settings: {
-    forward: { max: 3, acceleration: 0.05, inertial: true },
-    left: { max: 1, acceleration: 0.0075, inertial: true },
-    up: { max: 0.5, acceleration: 0.0005, inertial: true },
+    forward: { max: 3, acceleration: 0.025, inertial: true },
+    left: { max: 1, acceleration: 0.0075, inertial: true, reset: true },
+    up: { max: 0.5, acceleration: 0.005, inertial: true, reset: true },
     // TODO: non inertial axis should have just a single value, since they do not accelerate
     // but map the relative input value directly
     pitch: { max: 1, acceleration: 1 },
-    yaw: { max: 1, acceleration: 0.75 },
-    roll: { max: 1, acceleration: 0.35 },
+    yaw: { max: 1, acceleration: 1, },
+    // roll: { max: 1, acceleration: 1, },
+    roll: { max: 5, acceleration: .025, inertial: true, reset: true },
   },
 };
