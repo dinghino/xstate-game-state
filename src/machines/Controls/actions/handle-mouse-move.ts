@@ -8,7 +8,7 @@ export const mouseMoveHandler = <
   Axis extends string,
   Actions extends string
 >(
-  ctx: ControlsContext<C, Axis, Actions>,
+  ctx: ControlsContext<Axis, Actions>,
   event: ControlsEvent<C, Axis, Actions>
 ) => {
   if (!isEventType(event, 'MOUSE_MOVED')) return {}
@@ -32,7 +32,7 @@ export function handleMouseMove<
   Actions extends string
 >() {
   return (
-    ctx: ControlsContext<C, Axis, Actions>,
+    ctx: ControlsContext<Axis, Actions>,
     event: ControlsEvent<C, Axis, Actions>
   ) => mouseMoveHandler<C, Axis, Actions>(ctx, event)
 }

@@ -10,7 +10,7 @@ export const keyboardAxisHandler = <
   Axis extends string,
   Actions extends string
 >(
-  ctx: ControlsContext<C, Axis, Actions>,
+  ctx: ControlsContext<Axis, Actions>,
   event: Extract<ControlsEvent<C, Axis, Actions>, { type: 'INPUT_RECEIVED' }>
 ) => {
   // type guard to fix
@@ -31,7 +31,7 @@ export const keyboardActionHandler = <
   Axis extends string,
   Actions extends string
 >(
-  _: ControlsContext<C, Axis, Actions>,
+  _: ControlsContext<Axis, Actions>,
   event: Extract<ControlsEvent<C, Axis, Actions>, { type: 'INPUT_RECEIVED' }>
 ) => {
   if (event.mode !== 'digital') {
@@ -68,11 +68,11 @@ export const inputEventHandler = <
 >(
   inputType: 'axis' | 'action',
   handler: (
-    ctx: ControlsContext<C, Axis, Actions>,
+    ctx: ControlsContext<Axis, Actions>,
     event: Extract<ControlsEvent<C, Axis, Actions>, { type: 'INPUT_RECEIVED' }>
   ) => number
 ) => (
-  ctx: ControlsContext<C, Axis, Actions>,
+  ctx: ControlsContext<Axis, Actions>,
   event: ControlsEvent<C, Axis, Actions>
 ) => {
   // exclude all non input_received events and the

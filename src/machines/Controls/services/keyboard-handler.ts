@@ -7,7 +7,7 @@ import { ControlsContext, ControlsEvent } from '../controls.types'
 //   C extends InputsConfiguration<Ax, Ac>,
 //   Ax extends string,
 //   Ac extends string
-// >(): InvokeCreator<ControlsContext<C, Ax, Ac>, ControlsEvent<C, Ax, Ac>> {
+// >(): InvokeCreator<ControlsContext<Ax, Ac>, ControlsEvent<C, Ax, Ac>> {
 //   return (ctx, evt) => (send, receive) => {}
 // }
 
@@ -16,7 +16,7 @@ export const keyboardHandlerService = <
   Axis extends string,
   Actions extends string
 >(
-  ctx: ControlsContext<C, Axis, Actions>
+  ctx: ControlsContext<Axis, Actions>
 ) => (
   callback: Sender<ControlsEvent<C, Axis, Actions>>,
   onReceive: Receiver<ControlsEvent<C, Axis, Actions>>

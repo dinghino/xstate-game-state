@@ -58,7 +58,7 @@ export const createControlsMachine = <
     config.controllers.reduce((p, v) => ({ ...p, [v]: value }), {})
 
   // Setup initial context
-  const initialContext: ControlsContext<Configuration, Axis, Actions> = {
+  const initialContext: ControlsContext<Axis, Actions> = {
     config,
     values: getInitialValues(),
     // controllers enabled by the configuration.
@@ -70,7 +70,7 @@ export const createControlsMachine = <
   }
 
   // type safe closure for dev sanity
-  const forwardTo = (...args: Parameters<typeof fwdTo>) => fwdTo<ControlsContext<Configuration, Axis, Actions>,ControlsEvent<Configuration, Axis, Actions>>(...args)
+  const forwardTo = (...args: Parameters<typeof fwdTo>) => fwdTo<ControlsContext<Axis, Actions>,ControlsEvent<Configuration, Axis, Actions>>(...args)
 
   const toggleAllControllers = (value: boolean) =>
     config.controllers.map(controller => send({type: 'TOGGLE_CONTROLLER', controller, value}, { to: controller }))
@@ -83,7 +83,7 @@ export const createControlsMachine = <
       initial: 'inactive',
       id: 'input-controller',
       schema: {
-        context: {} as ControlsContext<Configuration, Axis, Actions>,
+        context: {} as ControlsContext<Axis, Actions>,
         events: {} as ControlsEvent<Configuration, Axis, Actions>,
       },
       entry: ['_setupMouseAxis'],
@@ -144,7 +144,7 @@ export const createControlsMachine = <
          * what we want is to check if at least one controller is active and send
          * START|STOP to the whole service based on that.
          */
-        // sendFromControllerStatus: (ctx:ControlsContext<Configuration, Axis, Actions>) => {
+        // sendFromControllerStatus: (ctx:ControlsContext<Axis, Actions>) => {
         //   const anyActive = Object.values(ctx.controllers).some(v => v);
         //   return send({ type: anyActive ? 'START' : 'STOP' })
         // },

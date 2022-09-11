@@ -8,7 +8,7 @@ export const mouseHandlerService = <
   Axis extends string,
   Actions extends string
 >(
-  ctx: ControlsContext<Config, Axis, Actions>
+  ctx: ControlsContext<Axis, Actions>
 ) => (
   callback: Sender<ControlsEvent<Config, Axis, Actions>>,
   onReceive: Receiver<ControlsEvent<Config, Axis, Actions>>

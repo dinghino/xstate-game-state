@@ -8,9 +8,9 @@ import {
 } from '../configuration/configuration.types'
 
 export type ControlsContext<
-  Configuration extends InputsConfiguration<Axis, Actions>,
   Axis extends string,
-  Actions extends string
+  Actions extends string,
+  Configuration extends InputsConfiguration<Axis, Actions> = InputsConfiguration<Axis, Actions>,
 > = {
   config: Configuration;
   // {[string]: number } map of axis|actions configured and their values
