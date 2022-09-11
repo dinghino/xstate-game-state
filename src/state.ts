@@ -1,25 +1,10 @@
-import { createControlsMachine } from './machines/Controls'
+// import { createControlsMachine } from './machines/Controls'
 import { createLocalPlayerMachine } from './machines/LocalPlayer'
-import { inputs, AXIS, ACTIONS, shipConfig } from './config'
+import { inputs, AXIS, ACTIONS, axisSettings } from './config'
 import { interpret } from 'xstate'
 
-export const inputsMachine = createControlsMachine(AXIS, ACTIONS, inputs)
+const localPlayerMachine = createLocalPlayerMachine( AXIS, ACTIONS, inputs, axisSettings)
 
-export const service = interpret(inputsMachine).start()
+export const playerService = interpret(localPlayerMachine).start()
 
-export default service
-
-const localPlayerMachine = createLocalPlayerMachine(
-  AXIS,
-  ACTIONS,
-  inputs,
-  shipConfig.settings
-)
-
-export const playerService = interpret(localPlayerMachine)
-  // .onEvent((e) => console.info("player service", e))
-  .start()
-// s.send("START");
-// console.info(s);
-
-// (window as any).s = s;
+export default playerService

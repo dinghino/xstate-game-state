@@ -1,11 +1,11 @@
 import { InputsConfiguration } from './machines/configuration/InputsConfiguration'
-import { ShipStateFactoryOptions } from './machines/ShipState'
+import { AxisSettings } from './machines/ShipState'
 
 export const AXIS = ['forward', 'left', 'up', 'yaw', 'roll', 'pitch'] as const
 export const ACTIONS = ['fire', 'break'] as const
 
-type Axis = typeof AXIS[number];
-type Action = typeof ACTIONS[number];
+export type TAxis = typeof AXIS[number];
+export type TAction = typeof ACTIONS[number];
 
 export const inputs = new InputsConfiguration({
   axis: AXIS,
@@ -115,18 +115,14 @@ export const inputs = new InputsConfiguration({
   },
 })
 
-export const shipConfig: Omit<ShipStateFactoryOptions<Axis, Action>, 'id'> = {
-  axis: AXIS,
-  actions: ACTIONS,
-  settings: {
-    forward: { max: 3, acceleration: 0.025, inertial: true },
-    left: { max: 1, acceleration: 0.0075, inertial: true, reset: true },
-    up: { max: 0.5, acceleration: 0.005, inertial: true, reset: true },
-    // TODO: non inertial axis should have just a single value, since they do not accelerate
-    // but map the relative input value directly
-    pitch: { max: 1, acceleration: 1 },
-    yaw: { max: 1, acceleration: 1, },
-    // roll: { max: 1, acceleration: 1, },
-    roll: { max: 5, acceleration: .025, inertial: true, reset: true },
-  },
+export const axisSettings: AxisSettings<TAxis> = {
+  forward: { max: 3, acceleration: 0.025, inertial: true },
+  left: { max: 1, acceleration: 0.0075, inertial: true, reset: true },
+  up: { max: 0.5, acceleration: 0.005, inertial: true, reset: true },
+  // TODO: non inertial axis should have just a single value, since they do not accelerate
+  // but map the relative input value directly
+  pitch: { max: 1, acceleration: 1 },
+  yaw: { max: 1, acceleration: 1, },
+  // roll: { max: 1, acceleration: 1, },
+  roll: { max: 5, acceleration: .025, inertial: true, reset: true },
 }

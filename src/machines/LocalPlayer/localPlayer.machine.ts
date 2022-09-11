@@ -5,7 +5,7 @@ import type { StateAxisSettings } from '../ShipState/shipState.types'
 
 import { createControlsMachine } from '../Controls'
 import { createShipStateMachine } from '../ShipState/shipState.machine'
-import { LocalPlayerContext } from './localPlayer.types'
+import { LocalPlayerContext, LocalPlayerEvent } from './localPlayer.types'
 import { forwardTo } from 'xstate/lib/actions'
 
 export function createLocalPlayerMachine<
@@ -29,6 +29,7 @@ export function createLocalPlayerMachine<
       tsTypes: {} as import('./localPlayer.machine.typegen').Typegen0,
       schema: {
         context: {} as LocalPlayerContext<Axis, Actions, Configuration>,
+        events: {} as LocalPlayerEvent,
       },
       context: {
         values: null as any,
@@ -39,6 +40,11 @@ export function createLocalPlayerMachine<
         assign({ values: () => spawn(state, 'state') }),
         assign({ inputs: () => spawn(inputs, 'inputs') }),
       ],
+      on: {
+        // always fired, regardless of where we are, until this becomes an internal event
+        UPDATE_STATE: { actions: 'updateStateTransform' },
+        RESET_STATE: { actions: 'resetStateValues' }
+      },
       states: {
         idle: {
           on: {
@@ -51,10 +57,15 @@ export function createLocalPlayerMachine<
           entry: ['startInputs', 'startState'],
           exit: ['stopInputs', 'stopState'],
           on: {
-            UPDATE: {
-              actions: ['updateValuesFromInputs'],
-            },
             STOP: 'idle',
+            // inputs forwarders
+            INPUTS_START: { actions: 'startInputs' },
+            INPUTS_STOP: { actions: 'stopInputs' },
+            INPUTS_TOGGLE: { actions: 'toggleController' },
+            INPUTS_START_CONTROLLER: { actions: 'startController' },
+            INPUTS_STOP_CONTROLLER: { actions: 'stopController' },
+            // state forwarders
+            UPDATE: { actions: 'updateValuesFromInputs', },
           },
         },
       },
@@ -65,16 +76,28 @@ export function createLocalPlayerMachine<
         stopInputs: forwardTo((ctx) => ctx.inputs ),
         startState: forwardTo((ctx) => ctx.values ),
         stopState: forwardTo((ctx) => ctx.values ),
-        // startState: send({ type: "START" }, { to: (ctx) => ctx.values }),
-        // stopState: send({ type: "STOP" }, { to: (ctx) => ctx.values }),
-        updateValuesFromInputs: ({ inputs }) =>
-          send(
-            {
-              type: 'UPDATE',
-              values: inputs.state.context.values,
-            },
-            { to: 'state' }
-          ),
+
+        updateValuesFromInputs: send(
+          ( {inputs }) => ({ type: 'UPDATE', values: inputs.getSnapshot().context.values }),
+          { to: ctx => ctx.values }
+        ),
+        startController: send((_, { controller }) =>
+          ({type: 'TOGGLE_CONTROLLER', controller, value: true }),
+          { to: ctx => ctx.inputs }
+        ),
+        stopController: send((_, { controller }) =>
+          ({type: 'TOGGLE_CONTROLLER', controller, value: false }),
+          { to: ctx => ctx.inputs }
+        ),
+        toggleController: send((_, { controller, value }) =>
+          ({type: 'TOGGLE_CONTROLLER', controller, value}),
+          { to: ctx => ctx.inputs }
+        ),
+        updateStateTransform: send((_, { rotation, position }) =>
+          ({ type: 'UPDATE_TRANSFORM', rotation, position }),
+          {to: ctx => ctx.values }
+        ),
+        resetStateValues: send({ type: 'RESET' }, {to: ctx => ctx.values })
       },
     }
   )

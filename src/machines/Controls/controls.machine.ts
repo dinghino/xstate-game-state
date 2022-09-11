@@ -148,7 +148,7 @@ export const createControlsMachine = <
           return { controllers, values: { ...ctx.values, ...lockedValues } }
         }),
         _resetValues: assign({ values: getInitialValues() }),
-        _setupMouseAxis: assign({ mouseAxis: getMouseAxisObject() }),
+        _setupMouseAxis: () => assign({ mouseAxis: getMouseAxisObject() }),
       },
     }
   )

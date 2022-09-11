@@ -17,14 +17,15 @@ export const Toolbar: React.FC = () => {
   const active = useSelector(inputs, (state) => state.matches('active'))
   const controllers = useSelector(inputs, ({ context }) => context.controllers)
 
-  const showControlsModal = useControlsModal(inputs as any)
+  /** TODO: refactor the controls modal with mantine ContextModal API so we can call them `by name` */
+  const showControlsModal = useControlsModal()
 
   const toggleService = React.useCallback(() => {
-    inputs.send(active ? 'STOP' : 'START')
-  }, [inputs.send, active])
+    playerService.send(active ? 'INPUTS_STOP' : 'INPUTS_START')
+  }, [active])
 
   const toggleController = React.useCallback((controller: TControllerType) => {
-    inputs.send({ type: 'TOGGLE_CONTROLLER', controller, value: !controllers[controller]})
+    playerService.send({ type: 'INPUTS_TOGGLE', controller, value: !controllers[controller]})
   }, [controllers])
   const activeColor = (v?: boolean) => v ? 'green' : 'red'
 

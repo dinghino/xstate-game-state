@@ -1,5 +1,4 @@
 import React, { Suspense } from 'react'
-import { useSelector } from '@xstate/react'
 import {
   AppShell,
   ColorSchemeProvider,
@@ -29,21 +28,20 @@ const Provider: React.FC<{children: React.ReactNode}> = ({ children }) => (
 )
 
 export default function App() {
-  const inputs = useSelector(playerService, ({ context }) => context.inputs)
-  const active = useSelector(inputs, (state) => state.matches('active'))
-
   usePauseMouse('KeyX')
+
+  /** @debug event listener for testing purposes */
   useWindowEvent('keypress', e => {
     if (e.code === 'KeyZ') {
-      console.info(active)
-      inputs.send(active ? 'STOP' : 'START')
+      playerService.send('INPUTS_STOP')
     }
   })
+
   React.useEffect(() => {
-    inputs.send('START')
+    playerService.send('START')
     return () => {
       closeAllModals()
-      inputs.send('STOP')
+      playerService.send('STOP')
     }
   }, [])
 
