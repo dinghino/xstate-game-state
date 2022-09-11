@@ -1,21 +1,17 @@
 import React from 'react'
-import { useSelector } from '@xstate/react'
-import {
-  ActionIcon,
-  Button,
-  Group,
-  Stack,
-} from '@mantine/core'
-// import service, { playerService } from "./state";
-import { playerService } from '../state'
-import { useControlsModal } from '../hooks/use-controls-modal'
+import { ActionIcon, Button, Group, Stack } from '@mantine/core'
 import { DeviceGamepad2, Keyboard, Mouse, TableAlias } from 'tabler-icons-react'
-import { TControllerType } from '../machines/configuration/configuration.types'
+
+import type { TControllerType } from '../machines/configuration/configuration.types'
+
+import { useControlsModal } from '../hooks/use-controls-modal'
+import { useControllersStatus, useInputsActive } from '../machines/hooks'
+import { playerService } from '../state'
 
 export const Toolbar: React.FC = () => {
-  const inputs = useSelector(playerService, ({ context }) => context.inputs)
-  const active = useSelector(inputs, (state) => state.matches('active'))
-  const controllers = useSelector(inputs, ({ context }) => context.controllers)
+
+  const active = useInputsActive(playerService)
+  const controllers = useControllersStatus(playerService)
 
   /** TODO: refactor the controls modal with mantine ContextModal API so we can call them `by name` */
   const showControlsModal = useControlsModal()

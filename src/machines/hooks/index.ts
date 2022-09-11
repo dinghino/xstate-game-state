@@ -60,3 +60,7 @@ export const usePlayerActions = <A extends string, B extends string>(service: TP
 export const useControllersStatus = <A extends string, B extends string>(service: TPlayerService<A,B>) => {
   return useSelector(usePlayerInputs(service), controls.controllers)
 }
+
+export const useInputsActive= <A extends string, B extends string>(service: TPlayerService<A,B>) => {
+  return useSelector(usePlayerInputs(service), state => state.matches('active'))
+}
