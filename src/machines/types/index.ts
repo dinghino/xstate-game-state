@@ -35,4 +35,5 @@ export type WithOptional<T, K extends keyof T> = Omit<T, K> &
  * Helper type to create to get the `state` of a state machine created by a machine factory
  * function
  */
-export type TState<T extends (...args: any[]) => AnyStateMachine> = InterpreterFrom<ReturnType<T>>['state']
+export type TService<T extends (...args: any[]) => AnyStateMachine> = InterpreterFrom<ReturnType<T>>
+export type TState<T extends (...args: any[]) => AnyStateMachine> = TService<T>['state']

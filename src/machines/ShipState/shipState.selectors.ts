@@ -7,6 +7,7 @@ export const state = ({context}: PlayerState) => context.transform
 export const settings = ({context}: PlayerState) => context.settings
 export const velocity = ({context}: PlayerState) => context.velocity
 export const actions = ({context}: PlayerState) => context.actions
+export const transform = ({context}: PlayerState) => context.transform
 
 
 
