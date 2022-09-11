@@ -1,0 +1,16 @@
+{
+  "extends": [
+    "eslint:recommended"
+  ],
+  "plugins": ["@typescript-eslint"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+    "allowForLoopAfterthoughts": 1,
+    "semi": ["error", "never"],
+    "quotes": [2, "single"]
+  }
+}
