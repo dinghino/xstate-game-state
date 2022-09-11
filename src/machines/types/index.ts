@@ -1,5 +1,5 @@
-import { InterpreterFrom } from "xstate";
-import type { createControlsMachine } from "../Controls";
+import { InterpreterFrom } from 'xstate'
+import type { createControlsMachine } from '../Controls'
 
 export type OptionalPropertyOf<T extends object> = Exclude<
   {

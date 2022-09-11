@@ -1,9 +1,9 @@
-import type { ControlsContext, ControlsEvent } from "../controls.types";
+import type { ControlsContext, ControlsEvent } from '../controls.types'
 
-import { isEventType, clamp } from "../../functions";
+import { isEventType, clamp } from '../../functions'
 
-import { InputsMachineError } from "../errors";
-import { InputsConfiguration } from "../../configuration/InputsConfiguration";
+import { InputsMachineError } from '../errors'
+import { InputsConfiguration } from '../../configuration/InputsConfiguration'
 
 export const keyboardAxisHandler = <
   C extends InputsConfiguration<Axis, Actions>,
@@ -11,20 +11,20 @@ export const keyboardAxisHandler = <
   Actions extends string
 >(
   ctx: ControlsContext<C, Axis, Actions>,
-  event: Extract<ControlsEvent<C, Axis, Actions>, { type: "INPUT_RECEIVED" }>
+  event: Extract<ControlsEvent<C, Axis, Actions>, { type: 'INPUT_RECEIVED' }>
 ) => {
   // type guard to fix
-  let value = 0;
-  if (event.mode === "digital") {
-    value = ctx.values[event.axis] + event.value;
+  let value = 0
+  if (event.mode === 'digital') {
+    value = ctx.values[event.axis] + event.value
   } else {
     // analog input gets mapped natively
-    value = event.value;
+    value = event.value
   }
-  return value;
+  return value
 
   // return clamp(value, -1, 1);
-};
+}
 
 export const keyboardActionHandler = <
   C extends InputsConfiguration<Axis, Actions>,
@@ -32,22 +32,22 @@ export const keyboardActionHandler = <
   Actions extends string
 >(
   _: ControlsContext<C, Axis, Actions>,
-  event: Extract<ControlsEvent<C, Axis, Actions>, { type: "INPUT_RECEIVED" }>
+  event: Extract<ControlsEvent<C, Axis, Actions>, { type: 'INPUT_RECEIVED' }>
 ) => {
-  if (event.mode !== "digital") {
-    throw new InputsMachineError("Actions cannot be digital.", event);
+  if (event.mode !== 'digital') {
+    throw new InputsMachineError('Actions cannot be digital.', event)
   }
-  return event.value;
-};
+  return event.value
+}
 
-function clampValue(value: number, inputType: "action" | "axis"): number {
-  let v = value;
-  if (inputType === "axis") {
-    v = clamp(v, -1, 1);
-  } else if (inputType === "action") {
-    v = clamp(v, 0, 1);
+function clampValue(value: number, inputType: 'action' | 'axis'): number {
+  let v = value
+  if (inputType === 'axis') {
+    v = clamp(v, -1, 1)
+  } else if (inputType === 'action') {
+    v = clamp(v, 0, 1)
   }
-  return v;
+  return v
 }
 
 // closure system
@@ -66,25 +66,25 @@ export const inputEventHandler = <
   Axis extends string,
   Actions extends string
 >(
-  inputType: "axis" | "action",
+  inputType: 'axis' | 'action',
   handler: (
     ctx: ControlsContext<C, Axis, Actions>,
-    event: Extract<ControlsEvent<C, Axis, Actions>, { type: "INPUT_RECEIVED" }>
+    event: Extract<ControlsEvent<C, Axis, Actions>, { type: 'INPUT_RECEIVED' }>
   ) => number
 ) => (
   ctx: ControlsContext<C, Axis, Actions>,
   event: ControlsEvent<C, Axis, Actions>
 ) => {
   // exclude all non input_received events and the
-  if (!isEventType(event, "INPUT_RECEIVED") || event._type !== inputType)
-    return {};
+  if (!isEventType(event, 'INPUT_RECEIVED') || event._type !== inputType)
+    return {}
 
-  const value = clampValue(handler(ctx, event), event._type);
+  const value = clampValue(handler(ctx, event), event._type)
 
   // don't send event if values didn't change to avoid spamming
   // with axis inputs this should capped [-1,1].
-  if (value === ctx.values[event.axis]) return {};
+  if (value === ctx.values[event.axis]) return {}
   return {
     values: { ...ctx.values, [event.axis]: value }
-  };
-};
+  }
+}

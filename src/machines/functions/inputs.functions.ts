@@ -1,6 +1,6 @@
 /** normalize values */
 export function normalize(v: number, min: number, max: number) {
-  return (v - min) / (max - min);
+  return (v - min) / (max - min)
 }
 /**
  * "centers" a value in a range between 0 and max
@@ -8,7 +8,7 @@ export function normalize(v: number, min: number, max: number) {
  * @param reverse if true output range is reversed (m/2) to -(m/2)
  */
 export function center(value: number, max: number, reverse = false) {
-  return (value * (max * 2) - max) * (reverse ? -1 : 1);
+  return (value * (max * 2) - max) * (reverse ? -1 : 1)
 }
 
 /**
@@ -27,13 +27,13 @@ export function centerNormalize(
   max: number,
   invert = false
 ) {
-  return center(normalize(value, min, max), 1, invert);
+  return center(normalize(value, min, max), 1, invert)
 }
 
 export function clamp(value: number, min: number, max: number) {
-  return Math.min(Math.max(value, min), max);
+  return Math.min(Math.max(value, min), max)
 }
 
 export function isNearly(value: number, match: number, precision = 0.05) {
-  return match - precision <= value && value <= match + precision;
+  return match - precision <= value && value <= match + precision
 }

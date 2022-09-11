@@ -1,14 +1,14 @@
-import React, { useMemo } from "react";
-import { useSelector } from "@xstate/react";
-import { Stack, Badge, Group,Divider, DefaultMantineColor, Progress, ProgressProps, Indicator } from "@mantine/core";
-import { playerService } from "../state";
-import { isNearly } from "../machines/functions";
+import React, { useMemo } from 'react'
+import { useSelector } from '@xstate/react'
+import { Stack, Badge, Group,Divider, DefaultMantineColor, Progress, ProgressProps, Indicator, BadgeProps } from '@mantine/core'
+import { playerService } from '../state'
+import { isNearly } from '../machines/functions'
 
 function evalPercent(current: number, max: number, reverse = false) {
-  return ((current / max) * 100 * (reverse ? -1 : 1)).toFixed(2);
+  return ((current / max) * 100 * (reverse ? -1 : 1)).toFixed(2)
 }
 
-interface IStatBadge {
+type IStatBadge = BadgeProps & {
   label?: React.ReactNode,
   value: number,
   reverse?:boolean,
@@ -22,10 +22,10 @@ interface ISpeedBar {
   reverse?:boolean
 }
 
-const StatBadge:React.FC<IStatBadge> = ({value, label, reverse, color}) => {
-  const actual = useMemo(() => value * 100 * (reverse ? -1 : 1), [value, reverse]);
+const StatBadge:React.FC<IStatBadge> = ({value, label, reverse, color, ...props}) => {
+  const actual = useMemo(() => value * 100 * (reverse ? -1 : 1), [value, reverse])
   return (
-    <Badge color={color} variant="dot" radius="sm" size="lg" leftSection={label}>
+    <Badge color={color} variant="dot" radius="sm" size="lg" leftSection={label} {...props}>
       {actual.toFixed(2).padStart(6, '0')}
     </Badge>
   )
@@ -34,25 +34,25 @@ const StatBadge:React.FC<IStatBadge> = ({value, label, reverse, color}) => {
 const SpeedBar: React.FC<ISpeedBar & ProgressProps> = ({value, max, reverse, colors = {pos:'teal', neg: 'orange'}, ...props}) => {
   const v = value * (reverse ? -1 : 1)
   // const barValue = Math.abs(+evalPercent(value+max * (reverse ? -1 : 1), max*2));
-  const barValueP = +evalPercent(v, max);
-  const barValueN = v < 0 ? Math.abs(barValueP) : 0;
+  const barValueP = +evalPercent(v, max)
+  const barValueN = v < 0 ? Math.abs(barValueP) : 0
   const color = v > 0 ? 'cyan' : v > 50 ? colors.pos : colors.neg
   const indicatorStyles = {
     indicator: {width: 6, marginLeft: -1, transition: 'background-color 0.5s ease-out'}
   }
   return (
     <>
-    <Progress radius={"sm"} color={color} size="lg" {...props} value={barValueN} style={{transform: "rotate(180deg)", marginRight: -2}}/>
-    <Indicator position="middle-center" radius="xs" color={isNearly(value, 0, 0.05) ? "green": color} size={16} styles={indicatorStyles}>{null}</Indicator>
-    <Progress radius={"sm"} color={color} size="lg" {...props} value={barValueP} style={{marginLeft: -2}}/>
+    <Progress radius={'sm'} color={color} size="lg" {...props} value={barValueN} style={{transform: 'rotate(180deg)', marginRight: -2}}/>
+    <Indicator position="middle-center" radius="xs" color={isNearly(value, 0, 0.05) ? 'green': color} size={16} styles={indicatorStyles}>{null}</Indicator>
+    <Progress radius={'sm'} color={color} size="lg" {...props} value={barValueP} style={{marginLeft: -2}}/>
     </>
   )
 }
 
 interface IItem<
   T extends string,
-  V = {[k in T]: number},
-  S = {[k in T]: {max: number}}
+  V = Record<T, number>,
+  S = Record<T, {max: number}>
 > {
   axis: T,
   velocity: V,
@@ -63,7 +63,7 @@ interface IItem<
 }
 
 const Item = <T extends string>({axis, reverse, velocity, settings,...props}: IItem<T>) => {
-  const barValues = (axis: keyof typeof velocity) => ({value: velocity[axis], max: settings[axis].max });
+  const barValues = (axis: T) => ({value: velocity[axis], max: settings[axis].max })
   return (
     <Group grow position="center" spacing="xs">
       <StatBadge value={velocity[axis]} {...props} reverse={reverse}/>
@@ -76,9 +76,9 @@ const Item = <T extends string>({axis, reverse, velocity, settings,...props}: II
 
 
 export const VelocityStats = () => {
-  const playerState = useSelector(playerService, ({ context }) => context.values);
-  const velocity = useSelector(playerState, ({ context }) => context.velocity);
-  const settings = useSelector(playerState, ({ context }) => context.settings);
+  const playerState = useSelector(playerService, ({ context }) => context.values)
+  const velocity = useSelector(playerState, ({ context }) => context.velocity)
+  const settings = useSelector(playerState, ({ context }) => context.settings)
 
   return (
     <>
@@ -95,28 +95,6 @@ export const VelocityStats = () => {
         <Item settings={settings} velocity={velocity} axis="yaw" label="Y" color="green" reverse />
         <Item settings={settings} velocity={velocity} axis="roll" label="Z" color="blue" reverse />
       </Stack>
-
-    </>
-  );
-};
-
-
-const TransformStats: React.FC = () => {
-  const playerState = useSelector(playerService, ({ context }) => context.values);
-  const {position, rotation} = useSelector(playerState, ({ context }) => context.transform);
-
-  const Badges = ({rot}: {rot?: boolean}) => (
-    <Group>
-      <StatBadge label="X" value={(rot ? rotation : position)[0]} />
-      <StatBadge label="Y" value={(rot ? rotation : position)[1]} />
-      <StatBadge label="Z" value={(rot ? rotation : position)[2]} />
-    </Group>
-  )
-
-  return (
-    <>
-      <Badges />
-      <Badges rot />
     </>
   )
 }

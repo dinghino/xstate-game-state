@@ -1,8 +1,8 @@
-import { InterpreterFrom } from "xstate";
-import type { InputsConfiguration } from "../configuration/InputsConfiguration";
-import { createControlsMachine } from "../Controls";
+import { InterpreterFrom } from 'xstate'
+import type { InputsConfiguration } from '../configuration/InputsConfiguration'
+import { createControlsMachine } from '../Controls'
 // import { createControlsMachine as controlsMachineFactory } from "../Controls";
-import { createShipStateMachine } from "../ShipState/shipState.machine";
+import { createShipStateMachine } from '../ShipState/shipState.machine'
 // import { createShipStateMachine as shipStateMachineFactory } from "../ShipState/shipState.machine";
 
 // import type { Wrapper } from "./localPlayer.helpers";
@@ -21,8 +21,8 @@ export type LocalPlayerContext<
   Ac extends string,
   C extends InputsConfiguration<Ax, Ac>
 > = {
-  values: InterpreterFrom<GenericCollectionReturnType<"createShipStateMachine", Ax, Ac, C>>;
-  inputs: InterpreterFrom<GenericCollectionReturnType<"createControlsMachine", Ax, Ac, C>>;
+  values: InterpreterFrom<GenericCollectionReturnType<'createShipStateMachine', Ax, Ac, C>>;
+  inputs: InterpreterFrom<GenericCollectionReturnType<'createControlsMachine', Ax, Ac, C>>;
 };
 
 // Return type extracting
@@ -33,8 +33,8 @@ export class Wrapper<Ax extends string, Ac extends string, C extends InputsConfi
   //HINT: do not forget to match arguments to your function
   createControlsMachine = (...args: any[]) =>
     // @ts-ignore
-    createControlsMachine<Ax, Ac, C>(...args);
+    createControlsMachine<Ax, Ac, C>(...args)
   createShipStateMachine = (...args: any[]) =>
     // @ts-ignore
-    createShipStateMachine<Ax, Ac>(...args);
+    createShipStateMachine<Ax, Ac>(...args)
 }

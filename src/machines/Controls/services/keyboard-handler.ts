@@ -1,7 +1,7 @@
-import { InvokeCallback, InvokeCreator, Receiver, Sender } from "xstate";
-import { InputsConfiguration } from "../../configuration/InputsConfiguration";
-import { forEachInputConfiguration, isEventType } from "../../functions";
-import { ControlsContext, ControlsEvent } from "../controls.types";
+import { Receiver, Sender } from 'xstate'
+import { InputsConfiguration } from '../../configuration/InputsConfiguration'
+import { forEachInputConfiguration, isEventType } from '../../functions'
+import { ControlsContext, ControlsEvent } from '../controls.types'
 
 // export function makeInputCallbackService<
 //   C extends InputsConfiguration<Ax, Ac>,
@@ -21,62 +21,62 @@ export const keyboardHandlerService = <
   callback: Sender<ControlsEvent<C, Axis, Actions>>,
   onReceive: Receiver<ControlsEvent<C, Axis, Actions>>
 ) => {
-  if (!ctx.controllers.keyboard) return;
-  const { config } = ctx;
+  if (!ctx.controllers.keyboard) return
+  const { config } = ctx
 
   const handleKeyboardEvents = (e: KeyboardEvent) => {
     forEachInputConfiguration<Axis, Actions>(config, (axis, input) => {
-      const { inputs, controller } = input;
-      if (controller !== "keyboard" || !inputs.includes(e.code)) return;
+      const { inputs, controller } = input
+      if (controller !== 'keyboard' || !inputs.includes(e.code)) return
       // TODO: check if this is needed with the "new" system
-      const scale = "scale" in input ? input.scale : 1;
-      const mode = "mode" in input ? input.mode : "digital";
+      const scale = 'scale' in input ? input.scale : 1
+      const mode = 'mode' in input ? input.mode : 'digital'
 
       callback({
         axis: axis as Axis,
-        type: "INPUT_RECEIVED",
+        type: 'INPUT_RECEIVED',
         source: input.controller,
         activator: e.code,
-        value: scale * (e.type === "keydown" ? 1 : -1),
+        value: scale * (e.type === 'keydown' ? 1 : -1),
         mode: mode,
         _type: input.type
-      });
-    });
-  };
+      })
+    })
+  }
 
   const startService = () => {
       
     // console.info('🎮 ✔️ starting keyboard handler')
     callback({
-      type: "CONTROLLER_STATUS_CHANGED",
-      controller: "keyboard",
+      type: 'CONTROLLER_STATUS_CHANGED',
+      controller: 'keyboard',
       status: true
-    });
-    window!.addEventListener("keydown", handleKeyboardEvents);
-    window!.addEventListener("keyup", handleKeyboardEvents);
+    })
+    window!.addEventListener('keydown', handleKeyboardEvents)
+    window!.addEventListener('keyup', handleKeyboardEvents)
 
   }
 
   const stopService = () => {
     // console.info('🎮 🔴 stopping keyboard handler')
     callback({
-      type: "CONTROLLER_STATUS_CHANGED",
-      controller: "keyboard",
+      type: 'CONTROLLER_STATUS_CHANGED',
+      controller: 'keyboard',
       status: false
-    });
-    window!.removeEventListener("keydown", handleKeyboardEvents);
-    window!.removeEventListener("keyup", handleKeyboardEvents);
+    })
+    window!.removeEventListener('keydown', handleKeyboardEvents)
+    window!.removeEventListener('keyup', handleKeyboardEvents)
   }
 
   onReceive(event => {
-    if (!isEventType(event, 'TOGGLE_CONTROLLER')) return;
-    if (event.controller !== 'keyboard') return;
-    if (event.value) return startService();
-    return stopService();
+    if (!isEventType(event, 'TOGGLE_CONTROLLER')) return
+    if (event.controller !== 'keyboard') return
+    if (event.value) return startService()
+    return stopService()
   })
 
-  startService();
+  startService()
   return () => {
     stopService()
-  };
-};
+  }
+}

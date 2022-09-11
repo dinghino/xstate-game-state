@@ -1,9 +1,9 @@
-import type { Equal, WithOptional } from "../types";
+import type { Equal, WithOptional } from '../types'
 
 // import { Expect, Equal, ExpectTrue } from "@type-challenges/utils";
-export type TControllerType = "keyboard" | "mouse";
-export type TInputMode = "analog" | "digital";
-export type TInputType = "axis" | "action";
+export type TControllerType = 'keyboard' | 'mouse';
+export type TInputMode = 'analog' | 'digital';
+export type TInputType = 'axis' | 'action';
 
 // Generic base types ///////////////////////////////////////////////////////////////////
 
@@ -17,19 +17,19 @@ export interface GenericInputConfig {
 export interface GenericAxisConfig {
   scale: 1 | -1;
   mode: TInputMode;
-  type: "axis";
+  type: 'axis';
 }
 
 // Generic per controller type //////////////////////////////////////////////////////////
 
 export type KeyboardConfig = GenericInputConfig & {
-  controller: "keyboard";
-  mode: "digital";
+  controller: 'keyboard';
+  mode: 'digital';
 };
 
 export type MouseConfig = GenericInputConfig & {
-  controller: "mouse";
-  mode: "analog";
+  controller: 'mouse';
+  mode: 'analog';
 };
 
 // Actual (finalized) input configuration types /////////////////////////////////////////
@@ -41,19 +41,19 @@ export type KeyboardAxisConfig = KeyboardConfig &
 
 export type MouseAxisInputConfig = MouseConfig &
   GenericAxisConfig & {
-    mode: "analog";
-    inputs: ["x" | "y"];
+    mode: 'analog';
+    inputs: ['x' | 'y'];
     deadzone: number;
   };
 
 export type ActionInputConfig = Omit<
   KeyboardConfig | MouseConfig,
-  "scale" | "deadzone"
+  'scale' | 'deadzone'
 > & {
   controller: TControllerType;
   inputs: string[];
-  mode: "digital";
-  type: "action";
+  mode: 'digital';
+  type: 'action';
 };
 
 export type InputConfiguration =
@@ -66,21 +66,21 @@ export type InputConfiguration =
 // types that do not have to be set or can be omitted
 type ExcludeDefaults<T extends {}, Extras extends keyof T = never> = Omit<
   T,
-  "mode" | "type" | "ref" | Extras
+  'mode' | 'type' | 'ref' | Extras
 >;
 
 /** mode is omitted and scale is optional (will default to 1 if not passed) */
 
 export type TKeyboardAxisConfig = ExcludeDefaults<
-  WithOptional<KeyboardAxisConfig, "scale">
+  WithOptional<KeyboardAxisConfig, 'scale'>
 >;
 
 export type TMouseAxisInputConfig = ExcludeDefaults<
-  WithOptional<MouseAxisInputConfig, "deadzone" | "scale">
+  WithOptional<MouseAxisInputConfig, 'deadzone' | 'scale'>
 >;
 
 export type TActionInputConfig = ExcludeDefaults<
-  WithOptional<ActionInputConfig, "name">
+  WithOptional<ActionInputConfig, 'name'>
 >;
 
 export type TInputConfiguration =
@@ -101,7 +101,7 @@ export type TInputConfiguration =
  */
 export type DefaultableOptions = Omit<
   TKeyboardAxisConfig | TActionInputConfig | TMouseAxisInputConfig,
-  "controller" | "inputs" | "name" | "axis" | "ref"
+  'controller' | 'inputs' | 'name' | 'axis' | 'ref'
 >;
 
 export type ConfigurationInputMappings<
@@ -111,11 +111,11 @@ export type ConfigurationInputMappings<
 > = {
   [key in Axis | Actions]: key extends Axis
     ? {
-        type: "axis";
+        type: 'axis';
         bindings: (TKeyboardAxisConfig | TMouseAxisInputConfig)[];
       }
     : {
-        type: "action";
+        type: 'action';
         bindings: TActionInputConfig[];
       };
 };
@@ -143,6 +143,4 @@ export type InputMapping =
   | MouseAxisInputConfig
   | ActionInputConfig;
 
-export type FinalizedInputs<Axis extends string, Actions extends string> = {
-  [key in Axis | Actions]: Array<InputMapping>;
-};
+export type FinalizedInputs<Axis extends string, Actions extends string> = Record<Axis | Actions, Array<InputMapping>>;

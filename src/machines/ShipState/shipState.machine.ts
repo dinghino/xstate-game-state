@@ -1,8 +1,8 @@
-import { assign, createMachine } from "xstate";
-import { objKeys } from "../../utils";
-import { isEventType } from "../functions";
-import { updateVelocities } from "./actions";
-import type { ShipStateContext, ShipStateEvent, StateAxisSettings } from "./shipState.types";
+import { assign, createMachine } from 'xstate'
+import { objKeys } from '../../utils'
+import { isEventType } from '../functions'
+import { updateVelocities } from './actions'
+import type { ShipStateContext, ShipStateEvent, StateAxisSettings } from './shipState.types'
 
 export interface ShipStateFactoryOptions<
   Axis extends string = string,
@@ -17,13 +17,13 @@ export interface ShipStateFactoryOptions<
 // Helper functions ////////////////////////////////////////////////////////////
 
 function setupInitials<T extends string>(arr: readonly T[], v = 0) {
-  return arr.reduce((p, k) => ({ ...p, [k]: v }), {} as { [k in T]: number });
+  return arr.reduce((p, k) => ({ ...p, [k]: v }), {} as { [k in T]: number })
 }
 
 type Values = [x:number, y:number, z:number]
 function updateTransformValues(current:Values, next:Values): [boolean, Values] {
   if (current.every((v, i) => v === next[i])) {
-    return [false, current];
+    return [false, current]
   }
   return [true, next]
 }
@@ -46,14 +46,14 @@ export const createShipStateMachine = <Axis extends string, Actions extends stri
       rotation: [0, 0, 0],
     },
     debugging: false,
-  });
+  })
 
   // Machine definition =======================================================
   return createMachine(
     {
       predictableActionArguments: true,
-      tsTypes: {} as import("./shipState.machine.typegen").Typegen0,
-      initial: "active",
+      tsTypes: {} as import('./shipState.machine.typegen').Typegen0,
+      initial: 'active',
       id: `ship-${id}-state`,
       schema: {
         context: {} as ShipStateContext<Axis, Actions>,
@@ -66,7 +66,7 @@ export const createShipStateMachine = <Axis extends string, Actions extends stri
           actions: [],
         },
         RESET: {
-          actions: ["resetContext", (c, e) => console.info("ship state", e)],
+          actions: ['resetContext', (c, e) => console.info('ship state', e)],
         },
       },
       // states definition
@@ -74,17 +74,17 @@ export const createShipStateMachine = <Axis extends string, Actions extends stri
         active: {
           on: {
             UPDATE: {
-              actions: ["processInputs"],
+              actions: ['processInputs'],
             },
             STOP: 'inactive',
             UPDATE_TRANSFORM: {
-              actions: "onUpdateTransform",
+              actions: 'onUpdateTransform',
             }
           },
         },
         inactive: {
           on: {
-            START: "active",
+            START: 'active',
           },
         },
       },
@@ -92,7 +92,7 @@ export const createShipStateMachine = <Axis extends string, Actions extends stri
     {
       actions: {
         processInputs: assign((ctx, event) => {
-          if (!isEventType(event, "UPDATE")) return {};
+          if (!isEventType(event, 'UPDATE')) return {}
 
           /**
            * FIXME: Actions should be handled through configuration completetly
@@ -116,26 +116,26 @@ export const createShipStateMachine = <Axis extends string, Actions extends stri
            * @dev fix this hack
            */
           const newActions = objKeys(ctx.actions)
-            .reduce((p, key) => ({ ...p, [key]: event.values[key] }), {}) as Record<Actions,number> & { break?:number};
-          let breaking = false;
+            .reduce((p, key) => ({ ...p, [key]: event.values[key] }), {}) as Record<Actions,number> & { break?:number}
+          let breaking = false
           if ('break' in newActions) {
-            breaking = !!newActions.break;
+            breaking = !!newActions.break
           }
           // TODO: Invert actions and velocities so we can pass down
           // the actions to the function and use them to do stuff (break/jump)
-          const velocity = updateVelocities(ctx, event, breaking);
+          const velocity = updateVelocities(ctx, event, breaking)
           return {
             ...velocity,
             actions: newActions
-          };
+          }
         }),
         onUpdateTransform: assign((context, event) => {
-          if (!isEventType(event, "UPDATE_TRANSFORM")) return {};
-          const current = context.transform;
+          if (!isEventType(event, 'UPDATE_TRANSFORM')) return {}
+          const current = context.transform
           const [pChanged, position] = updateTransformValues(current.position, event.position)
-          const [rChanged, rotation] = updateTransformValues(current.rotation, event.rotation);
+          const [rChanged, rotation] = updateTransformValues(current.rotation, event.rotation)
           // nothing changed. do not update the context.
-          if (!pChanged && !rChanged) return {};
+          if (!pChanged && !rChanged) return {}
           return { transform: { position, rotation, } }
         }),
 
@@ -145,5 +145,5 @@ export const createShipStateMachine = <Axis extends string, Actions extends stri
         })),
       },
     }
-  );
-};
+  )
+}

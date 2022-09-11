@@ -6,7 +6,7 @@ import type {
   TKeyboardAxisConfig,
   TMouseAxisInputConfig,
   TInputType
-} from "./configuration.types";
+} from './configuration.types'
 
 /** TODO: Fix Type of `type` for all parsers so that casts to the correct type and doesn't type error */
 
@@ -17,11 +17,11 @@ export function parseKeyboardAxis<N extends string>(
 ): KeyboardAxisConfig {
   return {
     scale: 1,
-    mode: "digital",
+    mode: 'digital',
     ...conf,
     ref,
-    type: "axis"
-  };
+    type: 'axis'
+  }
 }
 
 export function parseMouseAxis<N extends string>(
@@ -31,12 +31,12 @@ export function parseMouseAxis<N extends string>(
 ): MouseAxisInputConfig {
   return {
     scale: 1,
-    mode: "analog",
+    mode: 'analog',
     deadzone: 0.05,
     ...conf,
-    type: "axis",
+    type: 'axis',
     ref
-  };
+  }
 }
 
 export function parseAction<N extends string>(
@@ -46,9 +46,9 @@ export function parseAction<N extends string>(
 ): ActionInputConfig {
   return {
     name: ref,
-    mode: "digital",
+    mode: 'digital',
     ...conf,
-    type: "action",
+    type: 'action',
     ref
-  };
+  }
 }
