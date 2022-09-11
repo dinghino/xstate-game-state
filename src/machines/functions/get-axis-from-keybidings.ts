@@ -1,5 +1,5 @@
-import { objEntries } from "../../utils"
-import { TControllerType } from "../configuration/configuration.types"
+import { objEntries } from '../../utils'
+import { TControllerType } from '../configuration/configuration.types'
 
 export const getAxisFromKeybindings = <
   Axis extends string,

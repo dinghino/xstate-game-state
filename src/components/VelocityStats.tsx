@@ -51,8 +51,8 @@ const SpeedBar: React.FC<ISpeedBar & ProgressProps> = ({value, max, reverse, col
 
 interface IItem<
   T extends string,
-  V = {[key in T]: number},
-  S = {[key in T]: {max: number}}
+  V = Record<T, number>,
+  S = Record<T, {max: number}>
 > {
   axis: T,
   velocity: V,
@@ -95,28 +95,6 @@ export const VelocityStats = () => {
         <Item settings={settings} velocity={velocity} axis="yaw" label="Y" color="green" reverse />
         <Item settings={settings} velocity={velocity} axis="roll" label="Z" color="blue" reverse />
       </Stack>
-
-    </>
-  );
-};
-
-
-const TransformStats: React.FC = () => {
-  const playerState = useSelector(playerService, ({ context }) => context.values);
-  const {position, rotation} = useSelector(playerState, ({ context }) => context.transform);
-
-  const Badges = ({rot}: {rot?: boolean}) => (
-    <Group>
-      <StatBadge label="X" value={(rot ? rotation : position)[0]} />
-      <StatBadge label="Y" value={(rot ? rotation : position)[1]} />
-      <StatBadge label="Z" value={(rot ? rotation : position)[2]} />
-    </Group>
-  )
-
-  return (
-    <>
-      <Badges />
-      <Badges rot />
     </>
   )
 }

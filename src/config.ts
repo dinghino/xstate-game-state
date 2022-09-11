@@ -1,8 +1,8 @@
-import { InputsConfiguration } from "./machines/configuration/InputsConfiguration";
-import { ShipStateFactoryOptions } from "./machines/ShipState";
+import { InputsConfiguration } from './machines/configuration/InputsConfiguration'
+import { ShipStateFactoryOptions } from './machines/ShipState'
 
-export const AXIS = ["forward", "left", "up", "yaw", "roll", "pitch"] as const;
-export const ACTIONS = ["fire", "break"] as const;
+export const AXIS = ['forward', 'left', 'up', 'yaw', 'roll', 'pitch'] as const
+export const ACTIONS = ['fire', 'break'] as const
 
 type Axis = typeof AXIS[number];
 type Action = typeof ACTIONS[number];
@@ -12,110 +12,110 @@ export const inputs = new InputsConfiguration({
   actions: ACTIONS,
   mappings: {
     forward: {
-      type: "axis",
+      type: 'axis',
       bindings: [
         {
-          name: "forward",
-          controller: "keyboard",
-          inputs: ["KeyW", "ArrowUp"],
+          name: 'forward',
+          controller: 'keyboard',
+          inputs: ['KeyW', 'ArrowUp'],
           scale: -1,
         },
         {
-          name: "backward",
-          controller: "keyboard",
-          inputs: ["KeyS", "ArrowDown"],
+          name: 'backward',
+          controller: 'keyboard',
+          inputs: ['KeyS', 'ArrowDown'],
           scale: 1,
         },
       ],
     },
     left: {
-      type: "axis",
+      type: 'axis',
       bindings: [
         {
-          name: "strafe left",
-          controller: "keyboard",
-          inputs: ["KeyA", "ArrowLeft"],
+          name: 'strafe left',
+          controller: 'keyboard',
+          inputs: ['KeyA', 'ArrowLeft'],
           scale: -1,
         },
         {
-          name: "strafe right",
-          controller: "keyboard",
-          inputs: ["KeyD", "ArrowRight"],
+          name: 'strafe right',
+          controller: 'keyboard',
+          inputs: ['KeyD', 'ArrowRight'],
           scale: 1,
         },
       ],
     },
     up: {
-      type: "axis",
+      type: 'axis',
       bindings: [
         {
-          name: "strafe up",
-          controller: "keyboard",
-          inputs: ["KeyR"],
+          name: 'strafe up',
+          controller: 'keyboard',
+          inputs: ['KeyR'],
           scale: 1,
         },
         {
-          name: "strafe down",
-          controller: "keyboard",
-          inputs: ["KeyF"],
+          name: 'strafe down',
+          controller: 'keyboard',
+          inputs: ['KeyF'],
           scale: -1,
         },
       ],
     },
     yaw: {
-      type: "axis",
+      type: 'axis',
       bindings: [
         {
-          name: "yaw",
-          controller: "mouse",
-          inputs: ["x"],
+          name: 'yaw',
+          controller: 'mouse',
+          inputs: ['x'],
           scale: -1,
           deadzone: 0.15,
         },
       ],
     },
     pitch: {
-      type: "axis",
+      type: 'axis',
       bindings: [
         {
-          name: "pitch",
-          controller: "mouse",
-          inputs: ["y"],
+          name: 'pitch',
+          controller: 'mouse',
+          inputs: ['y'],
           scale: -1,
           deadzone: 0.15,
         },
       ],
     },
     roll: {
-      type: "axis",
+      type: 'axis',
       bindings: [
         {
-          name: "roll left",
-          controller: "keyboard",
-          inputs: ["KeyQ"],
+          name: 'roll left',
+          controller: 'keyboard',
+          inputs: ['KeyQ'],
           scale: 1,
         },
         {
-          name: "roll right",
-          controller: "keyboard",
-          inputs: ["KeyE"],
+          name: 'roll right',
+          controller: 'keyboard',
+          inputs: ['KeyE'],
           scale: -1,
         },
       ],
     },
     // actions
     break: {
-      type: "action",
-      bindings: [{ controller: "keyboard", inputs: ["Space"] }],
+      type: 'action',
+      bindings: [{ controller: 'keyboard', inputs: ['Space'] }],
     },
     fire: {
-      type: "action",
-      bindings: [{ controller: "mouse", inputs: ["0"] }], // TODO: correct input for primary key
+      type: 'action',
+      bindings: [{ controller: 'mouse', inputs: ['0'] }], // TODO: correct input for primary key
     },
   },
-});
+})
 
-export const shipConfig: Omit<ShipStateFactoryOptions<Axis, Action>, "id"> = {
+export const shipConfig: Omit<ShipStateFactoryOptions<Axis, Action>, 'id'> = {
   axis: AXIS,
   actions: ACTIONS,
   settings: {
@@ -129,4 +129,4 @@ export const shipConfig: Omit<ShipStateFactoryOptions<Axis, Action>, "id"> = {
     // roll: { max: 1, acceleration: 1, },
     roll: { max: 5, acceleration: .025, inertial: true, reset: true },
   },
-};
+}

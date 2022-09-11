@@ -27,15 +27,15 @@ export interface ShipStateContext<Axis extends string, Actions extends string> {
 // Event types ////////////////////////////////////////////////////////////////
 
 export type UPDATE<Axis extends string, Actions extends string> = {
-  type: "UPDATE";
+  type: 'UPDATE';
   values: { [key in Axis | Actions]: number };
 };
-export type PAUSE = { type: "STOP" };
-export type RESUME = { type: "START" };
-export type DEBUG = { type: "DEBUG" };
-export type RESET = { type: "RESET" };
+export type PAUSE = { type: 'STOP' };
+export type RESUME = { type: 'START' };
+export type DEBUG = { type: 'DEBUG' };
+export type RESET = { type: 'RESET' };
 export type UPDATE_TRANSFORM = {
-  type: "UPDATE_TRANSFORM",
+  type: 'UPDATE_TRANSFORM',
   position: [x:number, y:number, z:number]
   rotation: [x:number, y:number, z:number]
 }

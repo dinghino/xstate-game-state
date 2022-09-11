@@ -1,16 +1,16 @@
-import { send, assign, createMachine, forwardTo as fwdTo } from "xstate";
-import type { ControlsContext, ControlsEvent } from "./controls.types";
-import type { MouseAxisInputConfig } from "../configuration/configuration.types";
-import { keyboardHandlerService, mouseHandlerService } from "./services";
+import { send, assign, createMachine, forwardTo as fwdTo } from 'xstate'
+import type { ControlsContext, ControlsEvent } from './controls.types'
+import type { MouseAxisInputConfig } from '../configuration/configuration.types'
+import { keyboardHandlerService, mouseHandlerService } from './services'
 import {
   handleMouseMove,
   inputEventHandler,
   keyboardAxisHandler,
   keyboardActionHandler,
-} from "./actions";
+} from './actions'
 
-import { InputsConfiguration } from "../configuration/InputsConfiguration";
-import { getAxisFromKeybindings, isEventType } from "../functions";
+import { InputsConfiguration } from '../configuration/InputsConfiguration'
+import { getAxisFromKeybindings, isEventType } from '../functions'
 
 export const createControlsMachine = <
   Axis extends string,
@@ -23,27 +23,27 @@ export const createControlsMachine = <
   actions: readonly Actions[],
   config: Configuration
 ) => {
-  const mouseInputs = config.getAllBindings().filter((binding) => binding.controller === "mouse");
-  function getMouseAxis(a: "x" | "y") {
+  const mouseInputs = config.getAllBindings().filter((binding) => binding.controller === 'mouse')
+  function getMouseAxis(a: 'x' | 'y') {
     return mouseInputs.find(
-      (i) => i.inputs.includes(a) && i.mode === "analog" && i.deadzone
+      (i) => i.inputs.includes(a) && i.mode === 'analog' && i.deadzone
       // )?.ref as Names;
-    ) as MouseAxisInputConfig;
+    ) as MouseAxisInputConfig
   }
 
   const getInitialValues = () => {
     return config.refs.reduce((p, key) => ({ ...p, [key]: 0 }), {}) as {
       [k in Axis | Actions]: number;
-    };
-  };
+    }
+  }
 
   const getMouseAxisObject = () => ({
-    x: getMouseAxis("x"),
-    y: getMouseAxis("y"),
-  });
+    x: getMouseAxis('x'),
+    y: getMouseAxis('y'),
+  })
 
   const setAllControllersState = (value: boolean) =>
-    config.controllers.reduce((p, v) => ({ ...p, [v]: value }), {});
+    config.controllers.reduce((p, v) => ({ ...p, [v]: value }), {})
 
   // Setup initial context
   const initialContext: ControlsContext<Configuration, Axis, Actions> = {
@@ -55,43 +55,43 @@ export const createControlsMachine = <
     // handle certain types of controllers or input types)
     controllers: setAllControllersState(true),
     mouseAxis: getMouseAxisObject(),
-  };
+  }
 
   // type safe closure for dev sanity
-  const forwardTo = (...args: Parameters<typeof fwdTo>) => fwdTo<ControlsContext<Configuration, Axis, Actions>,ControlsEvent<Configuration, Axis, Actions>>(...args);
+  const forwardTo = (...args: Parameters<typeof fwdTo>) => fwdTo<ControlsContext<Configuration, Axis, Actions>,ControlsEvent<Configuration, Axis, Actions>>(...args)
 
   const toggleAllControllers = (value: boolean) =>
-    config.controllers.map(controller => send({type: "TOGGLE_CONTROLLER", controller, value}, { to: controller }))
+    config.controllers.map(controller => send({type: 'TOGGLE_CONTROLLER', controller, value}, { to: controller }))
 
   return createMachine(
     {
       predictableActionArguments: true,
-      tsTypes: {} as import("./controls.machine.typegen").Typegen0,
+      tsTypes: {} as import('./controls.machine.typegen').Typegen0,
       context: initialContext,
-      initial: "inactive",
-      id: "input-controller",
+      initial: 'inactive',
+      id: 'input-controller',
       schema: {
         context: {} as ControlsContext<Configuration, Axis, Actions>,
         events: {} as ControlsEvent<Configuration, Axis, Actions>,
       },
-      entry: ["_setupMouseAxis"],
+      entry: ['_setupMouseAxis'],
       invoke: [
-        { id: "keyboard", src: "keyboardHandlerService" },
-        { id: "mouse", src: "mouseHandlerService" },
+        { id: 'keyboard', src: 'keyboardHandlerService' },
+        { id: 'mouse', src: 'mouseHandlerService' },
       ],
       on: {
         CONTROLLER_STATUS_CHANGED: {
             actions: [
-              "onControllerStatusChanged",
+              'onControllerStatusChanged',
               // "sendFromControllerStatus"
             ]
         }
       },
       states: {
         inactive: {
-          entry: ["_resetValues",],
+          entry: ['_resetValues',],
           on: {
-            START: "active"
+            START: 'active'
           },
         },
         active: {
@@ -101,10 +101,10 @@ export const createControlsMachine = <
           // @ts-ignore -- forwardTo isn't working properly for TS but it works fine
           on: {
             INPUT_RECEIVED: {
-              actions: ["onKeyboardAxisReceived", "onKeyboardActionReceived"],
+              actions: ['onKeyboardAxisReceived', 'onKeyboardActionReceived'],
             },
             MOUSE_MOVED: {
-              actions: ["onMouseAxisReceived"],
+              actions: ['onMouseAxisReceived'],
             },
             TOGGLE_CONTROLLER: {
               actions: [
@@ -112,7 +112,7 @@ export const createControlsMachine = <
                 forwardTo('mouse')
               ],
             },
-            STOP: "inactive",
+            STOP: 'inactive',
           },
         },
       },
@@ -123,8 +123,8 @@ export const createControlsMachine = <
         mouseHandlerService,
       },
       actions: {
-        onKeyboardAxisReceived: assign(inputEventHandler<Configuration, Axis, Actions>("axis", keyboardAxisHandler)),
-        onKeyboardActionReceived: assign(inputEventHandler<Configuration, Axis, Actions>("action", keyboardActionHandler)),
+        onKeyboardAxisReceived: assign(inputEventHandler<Configuration, Axis, Actions>('axis', keyboardAxisHandler)),
+        onKeyboardActionReceived: assign(inputEventHandler<Configuration, Axis, Actions>('action', keyboardActionHandler)),
         onMouseAxisReceived: assign(handleMouseMove<Configuration, Axis, Actions>()),
 
         // internals -------------------------------------------------------------------
@@ -137,20 +137,20 @@ export const createControlsMachine = <
         //   return send({ type: anyActive ? 'START' : 'STOP' })
         // },
         onControllerStatusChanged: assign((ctx, event) => {
-          if (!isEventType(event, "CONTROLLER_STATUS_CHANGED")) return {};
+          if (!isEventType(event, 'CONTROLLER_STATUS_CHANGED')) return {}
           // console.info('🎮 inputs toggled', event)
-          const controllers = { ...ctx.controllers, [event.controller]: event.status };
-          let lockedValues = {};
+          const controllers = { ...ctx.controllers, [event.controller]: event.status }
+          let lockedValues = {}
           if (!event.status) {
-            const controlled = getAxisFromKeybindings(ctx.config.keybindings, event.controller);
-            lockedValues = controlled.reduce((p, v) => ({...p, [v]: 0}), {});
+            const controlled = getAxisFromKeybindings(ctx.config.keybindings, event.controller)
+            lockedValues = controlled.reduce((p, v) => ({...p, [v]: 0}), {})
           }
-          return { controllers, values: { ...ctx.values, ...lockedValues } };
+          return { controllers, values: { ...ctx.values, ...lockedValues } }
         }),
         _resetValues: assign({ values: getInitialValues() }),
         _setupMouseAxis: assign({ mouseAxis: getMouseAxisObject() }),
       },
     }
-  );
-};
+  )
+}
 
