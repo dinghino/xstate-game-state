@@ -1,9 +1,9 @@
-import { TState } from '../types'
-import type { createControlsMachine } from './controls.machine'
+// import { InputsConfiguration } from '../configuration/InputsConfiguration'
+import type { TControlsService } from './controls.machine'
 
-type ControlsState = TState<typeof createControlsMachine>
+type ControlsState<A extends string, B extends string,> = TControlsService<A, B>['state']
 
-export const config = ({context}: ControlsState) => context.config
-export const controllers = ({context}: ControlsState) => context.controllers
-export const inputs = ({context}: ControlsState) => context.values
+export const config = <A extends string, B extends string>({context}: ControlsState<A,B>) => context.config
+export const controllers = <A extends string, B extends string>({context}: ControlsState<A,B>) => context.controllers
+export const inputs = <A extends string, B extends string>({context}: ControlsState<A,B>) => context.values
 

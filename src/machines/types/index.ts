@@ -1,6 +1,3 @@
-import { AnyStateMachine, InterpreterFrom } from 'xstate'
-import type { createControlsMachine } from '../Controls'
-
 export type OptionalPropertyOf<T extends object> = Exclude<
   {
     [K in keyof T]: T extends Record<K, T[K]> ? never : K;
@@ -18,10 +15,6 @@ export type Optionals<
   [key in K]-?: T[key];
 };
 
-export type ControlsService = InterpreterFrom<
-  ReturnType<typeof createControlsMachine>
->;
-
 export type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends <
   T
 >() => T extends Y ? 1 : 2
@@ -30,10 +23,3 @@ export type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends <
 
 export type WithOptional<T, K extends keyof T> = Omit<T, K> &
   Partial<Pick<T, K>>;
-
-/**
- * Helper type to create to get the `state` of a state machine created by a machine factory
- * function
- */
-export type TService<T extends (...args: any[]) => AnyStateMachine> = InterpreterFrom<ReturnType<T>>
-export type TState<T extends (...args: any[]) => AnyStateMachine> = TService<T>['state']

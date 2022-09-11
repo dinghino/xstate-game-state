@@ -1,9 +1,6 @@
-import { TState } from '../types'
-import type { createLocalPlayerMachine } from './localPlayer.machine'
+import type { TPlayerService } from './localPlayer.machine'
 
-type PlayerControllerState = TState<typeof createLocalPlayerMachine>
+type TPlayerState <A extends string, B extends string> = TPlayerService<A, B>['state']
 
-export const state = ({context}: PlayerControllerState) => context.values
-export const controls = ({context}: PlayerControllerState) => context.inputs
-
-
+export const state = <A extends string, B extends string>({context}: TPlayerState<A,B>) => context.values
+export const controls = <A extends string, B extends string>({context}: TPlayerState<A,B>) => context.inputs

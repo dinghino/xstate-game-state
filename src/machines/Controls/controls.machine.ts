@@ -1,4 +1,4 @@
-import { send, assign, createMachine, forwardTo as fwdTo } from 'xstate'
+import { send, assign, createMachine, forwardTo as fwdTo, InterpreterFrom } from 'xstate'
 import type { ControlsContext, ControlsEvent } from './controls.types'
 import type { MouseAxisInputConfig } from '../configuration/configuration.types'
 import { keyboardHandlerService, mouseHandlerService } from './services'
@@ -11,6 +11,18 @@ import {
 
 import { InputsConfiguration } from '../configuration/InputsConfiguration'
 import { getAxisFromKeybindings, isEventType } from '../functions'
+
+export type TControlsMachine<
+  A extends string,
+  B extends string,
+  C extends InputsConfiguration<A, B> = InputsConfiguration<A, B>
+> = typeof createControlsMachine<A,B,C>;
+export type TControlsService<
+  A extends string,
+  B extends string,
+  C extends InputsConfiguration<A, B> = InputsConfiguration<A, B>
+> = InterpreterFrom<TControlsMachine<A,B,C>>;
+
 
 export const createControlsMachine = <
   Axis extends string,

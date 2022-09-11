@@ -1,8 +1,8 @@
 import { InterpreterFrom } from 'xstate'
 import { TControllerType } from '../configuration/configuration.types'
 import type { InputsConfiguration } from '../configuration/InputsConfiguration'
-import { createControlsMachine } from '../Controls'
-import { createShipStateMachine } from '../ShipState/shipState.machine'
+import { createControlsMachine, TControlsMachine } from '../Controls'
+import { createShipStateMachine, TStateMachine } from '../ShipState/shipState.machine'
 import { StateTransform } from '../ShipState/shipState.types'
 
 // Helpers --------------------------------------------------------------------
@@ -35,8 +35,8 @@ export type LocalPlayerContext<
   Ac extends string,
   C extends InputsConfiguration<Ax, Ac>
 > = {
-  values: InterpreterFrom<GenericCollectionReturnType<'createShipStateMachine', Ax, Ac, C>>;
-  inputs: InterpreterFrom<GenericCollectionReturnType<'createControlsMachine', Ax, Ac, C>>;
+  values: InterpreterFrom<ReturnType<TStateMachine<Ax, Ac>>>;
+  inputs: InterpreterFrom<ReturnType<TControlsMachine<Ax, Ac, C>>>;
 };
 
 // Return type extracting

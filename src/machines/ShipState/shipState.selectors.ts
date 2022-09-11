@@ -1,13 +1,12 @@
-import { TState } from '../types'
-import type { createShipStateMachine } from './shipState.machine'
+import type { TStateService } from './shipState.machine'
 
-type PlayerState = TState<typeof createShipStateMachine>
+type TState<A extends string, B extends string> = TStateService<A,B>['state']
 
-export const state = ({context}: PlayerState) => context.transform
-export const settings = ({context}: PlayerState) => context.settings
-export const velocity = ({context}: PlayerState) => context.velocity
-export const actions = ({context}: PlayerState) => context.actions
-export const transform = ({context}: PlayerState) => context.transform
+export const state = <A extends string, B extends string>({context}: TState<A,B>) => context.transform
+export const settings = <A extends string, B extends string>({context}: TState<A,B>) => context.settings
+export const velocity = <A extends string, B extends string>({context}: TState<A,B>) => context.velocity
+export const actions = <A extends string, B extends string>({context}: TState<A,B>) => context.actions
+export const transform = <A extends string, B extends string>({context}: TState<A,B>) => context.transform
 
 
 

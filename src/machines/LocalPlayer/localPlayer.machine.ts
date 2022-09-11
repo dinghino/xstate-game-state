@@ -1,4 +1,4 @@
-import { assign, createMachine, spawn, send } from 'xstate'
+import { assign, createMachine, spawn, send, InterpreterFrom } from 'xstate'
 
 import type { InputsConfiguration } from '../configuration/InputsConfiguration'
 import type { StateAxisSettings } from '../ShipState/shipState.types'
@@ -6,6 +6,9 @@ import type { StateAxisSettings } from '../ShipState/shipState.types'
 import { createControlsMachine } from '../Controls'
 import { createShipStateMachine } from '../ShipState/shipState.machine'
 import { LocalPlayerContext, LocalPlayerEvent } from './localPlayer.types'
+
+export type TPlayerMachine<A extends string, B extends string> = typeof createLocalPlayerMachine<A,B>;
+export type TPlayerService<A extends string, B extends string> = InterpreterFrom<TPlayerMachine<A,B>>;
 
 export function createLocalPlayerMachine<
   Axis extends string,
