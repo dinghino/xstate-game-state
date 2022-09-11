@@ -3,15 +3,10 @@ import type { ControlsContext, ControlsEvent } from '../controls.types'
 import { isEventType, clamp } from '../../functions'
 
 import { InputsMachineError } from '../errors'
-import { InputsConfiguration } from '../../configuration/InputsConfiguration'
 
-export const keyboardAxisHandler = <
-  C extends InputsConfiguration<Axis, Actions>,
-  Axis extends string,
-  Actions extends string
->(
+export const keyboardAxisHandler = <Axis extends string, Actions extends string>(
   ctx: ControlsContext<Axis, Actions>,
-  event: Extract<ControlsEvent<C, Axis, Actions>, { type: 'INPUT_RECEIVED' }>
+  event: Extract<ControlsEvent<Axis, Actions>, { type: 'INPUT_RECEIVED' }>
 ) => {
   // type guard to fix
   let value = 0
@@ -26,13 +21,9 @@ export const keyboardAxisHandler = <
   // return clamp(value, -1, 1);
 }
 
-export const keyboardActionHandler = <
-  C extends InputsConfiguration<Axis, Actions>,
-  Axis extends string,
-  Actions extends string
->(
+export const keyboardActionHandler = <Axis extends string, Actions extends string>(
   _: ControlsContext<Axis, Actions>,
-  event: Extract<ControlsEvent<C, Axis, Actions>, { type: 'INPUT_RECEIVED' }>
+  event: Extract<ControlsEvent<Axis, Actions>, { type: 'INPUT_RECEIVED' }>
 ) => {
   if (event.mode !== 'digital') {
     throw new InputsMachineError('Actions cannot be digital.', event)
@@ -61,19 +52,15 @@ function clampValue(value: number, inputType: 'action' | 'axis'): number {
  *        returned value can be an actual change or empty, depending on internal
  *        handler logic.
  */
-export const inputEventHandler = <
-  C extends InputsConfiguration<Axis, Actions>,
-  Axis extends string,
-  Actions extends string
->(
+export const inputEventHandler = <Axis extends string, Actions extends string>(
   inputType: 'axis' | 'action',
   handler: (
     ctx: ControlsContext<Axis, Actions>,
-    event: Extract<ControlsEvent<C, Axis, Actions>, { type: 'INPUT_RECEIVED' }>
+    event: Extract<ControlsEvent<Axis, Actions>, { type: 'INPUT_RECEIVED' }>
   ) => number
 ) => (
   ctx: ControlsContext<Axis, Actions>,
-  event: ControlsEvent<C, Axis, Actions>
+  event: ControlsEvent<Axis, Actions>
 ) => {
   // exclude all non input_received events and the
   if (!isEventType(event, 'INPUT_RECEIVED') || event._type !== inputType)

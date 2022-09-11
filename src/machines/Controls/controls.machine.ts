@@ -70,7 +70,7 @@ export const createControlsMachine = <
   }
 
   // type safe closure for dev sanity
-  const forwardTo = (...args: Parameters<typeof fwdTo>) => fwdTo<ControlsContext<Axis, Actions>,ControlsEvent<Configuration, Axis, Actions>>(...args)
+  const forwardTo = (...args: Parameters<typeof fwdTo>) => fwdTo<ControlsContext<Axis, Actions>,ControlsEvent<Axis, Actions>>(...args)
 
   const toggleAllControllers = (value: boolean) =>
     config.controllers.map(controller => send({type: 'TOGGLE_CONTROLLER', controller, value}, { to: controller }))
@@ -84,7 +84,7 @@ export const createControlsMachine = <
       id: 'input-controller',
       schema: {
         context: {} as ControlsContext<Axis, Actions>,
-        events: {} as ControlsEvent<Configuration, Axis, Actions>,
+        events: {} as ControlsEvent<Axis, Actions>,
       },
       entry: ['_setupMouseAxis'],
       invoke: [
@@ -135,9 +135,9 @@ export const createControlsMachine = <
         mouseHandlerService,
       },
       actions: {
-        onKeyboardAxisReceived: assign(inputEventHandler<Configuration, Axis, Actions>('axis', keyboardAxisHandler)),
-        onKeyboardActionReceived: assign(inputEventHandler<Configuration, Axis, Actions>('action', keyboardActionHandler)),
-        onMouseAxisReceived: assign(handleMouseMove<Configuration, Axis, Actions>()),
+        onKeyboardAxisReceived: assign(inputEventHandler<Axis, Actions>('axis', keyboardAxisHandler)),
+        onKeyboardActionReceived: assign(inputEventHandler<Axis, Actions>('action', keyboardActionHandler)),
+        onMouseAxisReceived: assign(handleMouseMove<Axis, Actions>()),
 
         // internals -------------------------------------------------------------------
         /** FIXME: @dev this send action doesn't work because it's not supposed to

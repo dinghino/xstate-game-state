@@ -34,9 +34,7 @@ export type MOUSE_MOVED = {
   value: { x: number; y: number };
 };
 
-export type INPUT_RECEIVED<
-  Axis extends string,
-> = {
+export type INPUT_RECEIVED<Axis extends string> = {
   type: 'INPUT_RECEIVED';
   axis: Axis;
   source: TControllerType;
@@ -59,14 +57,9 @@ export type CONTROLLER_STATUS_CHANGED = {
 }
 
 export type ControlsEvent<
-  /**
-   * @dev type is not used but left for backward compatibility for now
-   * When things are finalized we'll do a pass for v1 and clean all types
-   */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  Configuration extends InputsConfiguration<Axis, Actions>,
   Axis extends string,
-  Actions extends string
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Actions extends string,
 > =
   | START
   | STOP
@@ -79,4 +72,4 @@ type EventType<E extends { type: string }> = E extends { type: infer T }
   ? T
   : never;
 
-export type ControlsEventTypes = EventType<ControlsEvent<any, any, any>>;
+export type ControlsEventTypes = EventType<ControlsEvent<any, any>>;
