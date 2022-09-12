@@ -16,6 +16,7 @@ import { usePauseMouse } from './hooks/use-pause-mouse'
 import { CanvasRoot } from './components/threejs'
 import { VelocityStats } from './components/VelocityStats'
 import { Toolbar } from './components/Toolbar'
+import { useStateActions } from './machines/hooks'
 
 const Provider: React.FC<{children: React.ReactNode}> = ({ children }) => (
   <ColorSchemeProvider colorScheme="dark" toggleColorScheme={() => null}>
@@ -28,20 +29,22 @@ const Provider: React.FC<{children: React.ReactNode}> = ({ children }) => (
 )
 
 export default function App() {
+  const actions = useStateActions(playerService)
+
   usePauseMouse('KeyX')
 
   /** @debug event listener for testing purposes */
   useWindowEvent('keypress', e => {
     if (e.code === 'KeyZ') {
-      playerService.send('INPUTS_STOP')
+      actions.pause('controls')
     }
   })
 
   React.useEffect(() => {
-    playerService.send('START')
+    actions.start()
     return () => {
       closeAllModals()
-      playerService.send('STOP')
+      actions.pause()
     }
   }, [])
 

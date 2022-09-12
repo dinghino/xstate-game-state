@@ -5,23 +5,24 @@ import { DeviceGamepad2, Keyboard, Mouse, TableAlias } from 'tabler-icons-react'
 import type { TControllerType } from '../machines/configuration/configuration.types'
 
 import { useControlsModal } from '../hooks/use-controls-modal'
-import { useControllersStatus, useInputsActive } from '../machines/hooks'
+import { useControllersStatus, useInputsActive, useStateActions } from '../machines/hooks'
 import { playerService } from '../state'
 
 export const Toolbar: React.FC = () => {
 
   const active = useInputsActive(playerService)
   const controllers = useControllersStatus(playerService)
+  const actions = useStateActions(playerService)
 
   /** TODO: refactor the controls modal with mantine ContextModal API so we can call them `by name` */
   const showControlsModal = useControlsModal()
 
   const toggleService = React.useCallback(() => {
-    playerService.send(active ? 'INPUTS_STOP' : 'INPUTS_START')
+    actions.toggle(!active, 'controls')
   }, [active])
 
   const toggleController = React.useCallback((controller: TControllerType) => {
-    playerService.send({ type: 'INPUTS_TOGGLE', controller, value: !controllers[controller]})
+    actions.toggle(!controllers[controller], 'controls', controller)
   }, [controllers])
   const activeColor = (v?: boolean) => v ? 'green' : 'red'
 
