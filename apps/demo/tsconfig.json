@@ -1,0 +1,17 @@
+{
+    "include": [
+        "./src/**/*"
+    ],
+    "extends": "tsconfig/base.json",
+    "compilerOptions": {
+        "strict": true,
+        "esModuleInterop": true,
+        "experimentalDecorators": true,
+        "keyofStringsOnly": true,
+        "lib": [
+            "dom",
+            "es2019"
+        ],
+        "jsx": "react-jsx"
+    }
+}
