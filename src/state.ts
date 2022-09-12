@@ -1,5 +1,5 @@
 // import { createControlsMachine } from './machines/Controls'
-import { createLocalPlayerMachine } from './machines/LocalPlayer'
+import { createLocalPlayerMachine } from './machines'
 import { inputs, AXIS, ACTIONS, axisSettings } from './config'
 import { interpret } from 'xstate'
 

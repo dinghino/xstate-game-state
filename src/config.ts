@@ -1,5 +1,4 @@
-import { InputsConfiguration } from './machines/configuration/InputsConfiguration'
-import { AxisSettings } from './machines/ShipState'
+import { AxisSettings, InputsConfiguration } from './machines'
 
 export const AXIS = ['forward', 'left', 'up', 'yaw', 'roll', 'pitch'] as const
 export const ACTIONS = ['fire', 'break'] as const
