@@ -10,8 +10,14 @@ import { objEntries } from '../../utils'
 import type { TActionClosure, TActionFunction, TAnyAction } from './actions.types'
 import { AnyInterpreter } from 'xstate'
 
-export const wrap = <F extends TAnyAction>(s: AnyInterpreter, f: F) => ((...args) => f(s, ...args)) as TActionClosure<F>
-export function createActions<Am extends Record<string, TActionFunction<F>>, F extends TAnyAction>(service: AnyInterpreter, actions: Am) {
+export const wrap = <F extends TAnyAction, AF extends TActionFunction<S,F>, S extends AnyInterpreter>(s: S, f: AF) => ((...args) => f(s, ...args)) as TActionClosure<AF>
+
+export function createActions<
+  N extends string, 
+  Am extends Record<N, TActionFunction<S, F>>, 
+  F extends TAnyAction, 
+  S extends AnyInterpreter
+>(service: S, actions: Am) {
   const entries = objEntries(actions)
   return entries.reduce((p, [name, action]) => ({
     ...p,

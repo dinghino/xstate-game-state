@@ -1,8 +1,15 @@
 import { useMemo } from 'react'
 
 import type { TPlayerService } from '../LocalPlayer'
-import * as actions from '../actions/actions.functions'
+import * as ACTIONS from '../actions/actions.functions'
 import { createActions } from '../actions'
+
+/** hackety-hack to get typed module */
+type Module = typeof import('../actions/actions.functions')
+type Keys = keyof Module
+type Actions = Readonly<{[key in Keys]: Module[key]}>
+
+const actions: Actions = ACTIONS
 
 /**
  * Returns usable actions that sends events to the provided service, using all
