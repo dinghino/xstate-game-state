@@ -3,7 +3,7 @@ import { MeshProps, useFrame } from '@react-three/fiber'
 // import { useSelector } from '@xstate/react'
 import React from 'react'
 import { Mesh, Object3D, Vector3 } from 'three'
-import { usePlayerVelocity } from '../../machines/hooks'
+import { usePlayerVelocity, useStateActions } from '../../machines/hooks'
 import { playerService } from '../../state'
 interface Values {
   yaw: number;
@@ -48,16 +48,18 @@ function centerObject(object: Object3D) {
 export const Player: React.FC<MeshProps> = ((props) => {
   const cube = React.useRef<Mesh>(null!)
   const velocity = usePlayerVelocity(playerService)
+  const actions = useStateActions(playerService)
 
   /** @debug event listener for debugging and bug fixing */
   useWindowEvent('keypress', (e) => {
     if (e.code === 'KeyT') {
       centerObject(cube!.current)
-      playerService.send('RESET_STATE')
+      actions.resetState()
     }
   })
 
-  useFrame(() => playerService.send('UPDATE'))
+  // useFrame(() => playerService.send('UPDATE'))
+  useFrame(() => actions.update())
 
   useFrame((_, dt) => {
     const obj = cube.current
@@ -67,7 +69,7 @@ export const Player: React.FC<MeshProps> = ((props) => {
      * the evaluated transform from the scene instead of computing it outside
      * for time constraints reasons
      */
-    playerService.send({ type: 'UPDATE_STATE', ...parseTransform(obj) })
+    actions.updateState(parseTransform(obj))
   })
 
   return (

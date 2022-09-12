@@ -2,8 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { useWindowEvent } from '@mantine/hooks'
 import { playerService } from '../state'
+import { useStateActions } from '../machines/hooks'
 
 export const usePauseMouse = (keyCode: string) => {
+  const { toggle } = useStateActions(playerService)
 
   const [paused, setPause] = useState(false)
   useWindowEvent('keydown', e => {
@@ -13,9 +15,7 @@ export const usePauseMouse = (keyCode: string) => {
     }
   })
 
-  useEffect(() => {
-    playerService.send({ type: 'INPUTS_TOGGLE', controller: 'mouse', value: !paused })
-  }, [paused])
+  useEffect(() => { toggle(paused, 'controls', 'mouse') }, [paused])
   
   return useMemo(() => paused, [paused])
 }
