@@ -1,3 +1,3 @@
-export { TActionFunction, TActionClosure, TAnyAction } from './actions.types'
+export type { TActionFunction, TActionClosure, TAnyAction } from './actions.types'
 export { createActions } from './actions.builder'
-export * as core from './actions.functions'
+export * as actions from './actions.functions'
